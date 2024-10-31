@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "gen-ai"
+version = "0.1.0"
+description = "Gen AI portfolio project"
+authors = ["Doğuş Can Korkmaz <k.doguscan@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-dotenv = "^1.0.1"
+pydantic = "^2.9.2"
+groq = "^0.11.0"
+faiss-cpu = "^1.9.0"
+numpy = "^2.1.2"
+flask = "^3.0.3"
+requests = "^2.32.3"
+diffusers = "^0.31.0"
+torch = { version = "*", source = "pytorch-cu124" }
+torchvision = { version = "*", source = "pytorch-cu124" }
+torchaudio = { version = "*", source = "pytorch-cu124" }
+
+[[tool.poetry.source]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+priority = "supplemental"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+isort = "^5.13.2"
+mypy = "^1.13.0"
+pylint = "^3.3.1"
+autoflake = "^2.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

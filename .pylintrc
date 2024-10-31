@@ -1,0 +1,30 @@
+[MASTER]
+jobs=4
+
+ignore=tests,migrations
+
+[MESSAGES CONTROL]
+disable=
+    missing-docstring,
+    too-few-public-methods,
+    invalid-name,
+    too-many-arguments,
+    too-many-instance-attributes,
+    too-many-locals,
+    line-too-long,
+    too-many-positional-arguments,
+    logging-fstring-interpolation
+
+[FORMAT]
+max-line-length=88
+
+[TYPECHECK]
+generated-members=numpy.*,torch.*
+
+[REPORTS]
+output-format=colorized
+
+reports=no
+
+[SIMILARITIES]
+min-similarity-lines=5
