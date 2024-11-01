@@ -18,6 +18,8 @@ diffusers = "^0.31.0"
 torch = { version = "*", source = "pytorch-cu124" }
 torchvision = { version = "*", source = "pytorch-cu124" }
 torchaudio = { version = "*", source = "pytorch-cu124" }
+transformers = "^4.46.1"
+accelerate = "^1.0.1"
 
 [[tool.poetry.source]]
 name = "pytorch-cu124"

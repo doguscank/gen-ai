@@ -1,8 +1,11 @@
-from diffusers import DiffusionPipeline
+from diffusers import StableDiffusionPipeline
+import torch
 
-pipe = DiffusionPipeline.from_pretrained("stable-diffusion-v1-5/stable-diffusion-v1-5")
+model_id = "sd-legacy/stable-diffusion-v1-5"
+pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+pipe = pipe.to("cuda")
 
-prompt = "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"
+prompt = "a photo of an astronaut riding a horse on mars"
 image = pipe(prompt).images[0]
 
-image.save("astronaut_in_jungle.png")
+image.save("astronaut_rides_horse.png")
