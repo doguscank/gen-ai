@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gen-ai"
+name = "gen_ai"
 version = "0.1.0"
 description = "Gen AI portfolio project"
 authors = ["Doğuş Can Korkmaz <k.doguscan@gmail.com>"]
