@@ -1,8 +1,54 @@
 from PIL import Image
+from PIL import Image
 from typing import List, Any, Dict, Optional, Callable
 from tqdm import tqdm
 from gen_ai.utils import pathify_strings
 from pathlib import Path
+import cv2
+import numpy as np
+
+
+def load_image(image_path: Path) -> Image:
+    """
+    Load an image from the specified path.
+
+    Parameters
+    ----------
+    image_path : Path
+        The path to the image.
+
+    Returns
+    -------
+    Image
+        The loaded image.
+    """
+
+    return Image.open(image_path)
+
+
+def create_spherical_mask_on_center(height: int, width: int, radius: int) -> Image:
+    """
+    Create a spherical mask on the center of the image.
+
+    Parameters
+    ----------
+    height : int
+        The height of the image.
+    width : int
+        The width of the image.
+    radius : int
+        The radius of the spherical mask.
+
+    Returns
+    -------
+    Image
+        The spherical mask.
+    """
+
+    mask = np.zeros((height, width), np.uint8)
+    cv2.circle(mask, (width // 2, height // 2), radius, 255, -1)
+
+    return Image.fromarray(mask)
 
 
 def _get_image_name(default_image_name: str, idx: int) -> str:

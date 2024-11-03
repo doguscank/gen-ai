@@ -4,7 +4,12 @@ This repository will be used as my Gen AI portfolio.
 
 # TO-DO
 
-1. Implement Stable Diffusion 1.5 pipeline
+1. ~~Implement Stable Diffusion 1.5 pipeline~~
+    1. ~~Text2Img~~
+    1. ~~Img2Img~~
+    1. ~~Inpainting~~
+1. Add local path loading support
+    1. Make fine-tuned models work
 1. Add LoRA support
     1. Add changeable LoRA weights
 1. Add ControlNet support
