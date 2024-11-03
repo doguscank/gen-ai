@@ -1,10 +1,9 @@
-from diffusers import StableDiffusionPipeline, DiffusionPipeline
-import torch
-from gen_ai.configs import stable_diffusion as sd_config
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional, Callable, Dict, List, Any
-from PIL import Image
 from pathlib import Path
+from typing import Optional
+
+import torch
+from pydantic import BaseModel, ConfigDict
+
 from gen_ai.constants.task_types import TaskType
 
 
@@ -42,7 +41,7 @@ class StableDiffusionModelConfig(BaseModel):
 
     def model_post_init(self, __context) -> "StableDiffusionModelConfig":
         # Initialize the generator
-        if self.seed == -1:
+        if self.seed == -1 or self.seed is None:
             self.seed = torch.seed()
         if self.generator is None:
             self.generator = torch.Generator(device=self.device)

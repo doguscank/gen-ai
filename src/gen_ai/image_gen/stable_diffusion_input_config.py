@@ -1,11 +1,8 @@
-from diffusers import StableDiffusionPipeline, DiffusionPipeline
+from typing import Any, Callable, Dict, List, Optional, Union
+
 import torch
-from gen_ai.configs import stable_diffusion as sd_config
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Optional, Callable, Dict, List, Any, Union
 from PIL import Image
-from pathlib import Path
-from gen_ai.constants.task_types import TaskType
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StableDiffusionInputConfig(BaseModel):

@@ -1,11 +1,12 @@
-from PIL import Image
-from PIL import Image
-from typing import List, Any, Dict, Optional, Callable
-from tqdm import tqdm
-from gen_ai.utils import pathify_strings
 from pathlib import Path
+from typing import List, Optional
+
 import cv2
 import numpy as np
+from PIL import Image
+from tqdm import tqdm
+
+from gen_ai.utils import pathify_strings
 
 
 def load_image(image_path: Path) -> Image:

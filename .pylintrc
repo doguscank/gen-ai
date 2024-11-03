@@ -19,7 +19,7 @@ disable=
 max-line-length=88
 
 [TYPECHECK]
-generated-members=numpy.*,torch.*
+generated-members=numpy.*,torch.*,cv2.*
 
 [REPORTS]
 output-format=colorized

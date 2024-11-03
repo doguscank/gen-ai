@@ -1,25 +1,24 @@
+from pathlib import Path
+from typing import Dict, List, Optional
+
+import torch
 from diffusers import (
-    StableDiffusionPipeline,
+    DiffusionPipeline,
     StableDiffusionImg2ImgPipeline,
     StableDiffusionInpaintPipeline,
-    DiffusionPipeline,
+    StableDiffusionPipeline,
 )
-import torch
-from gen_ai.configs import stable_diffusion as sd_config
-from pydantic import BaseModel
-from typing import Optional, Callable, Dict, List, Any
 from PIL import Image
-from pathlib import Path
-from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
+
+from gen_ai.configs import stable_diffusion as sd_config
+from gen_ai.constants.task_types import TaskType
 from gen_ai.image_gen.stable_diffusion_input_config import (
     StableDiffusionInputConfig,
-    create_img2img_config,
     create_inpainting_config,
-    create_text2img_config,
 )
-from gen_ai.img_utils import save_images, load_image, create_spherical_mask_on_center
+from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
+from gen_ai.img_utils import create_spherical_mask_on_center, load_image, save_images
 from gen_ai.utils import pathify_strings
-from gen_ai.constants.task_types import TaskType
 
 PIPELINE_CLS_MAP: Dict[TaskType, DiffusionPipeline] = {
     TaskType.TEXT2IMG: StableDiffusionPipeline,
@@ -93,14 +92,14 @@ class StableDiffusion:
         if hf_model_id is not None:
             if self.model_config.hf_model_id == hf_model_id and self.pipe is not None:
                 return
-            else:
-                model_descriptor = hf_model_id
+
+            model_descriptor = hf_model_id
 
         if model_path is not None:
             if self.model_config.model_path == model_path and self.pipe is not None:
                 return
-            else:
-                model_descriptor = model_path
+
+            model_descriptor = model_path
 
         if device is None:
             device = self.model_config.device
@@ -108,7 +107,7 @@ class StableDiffusion:
         pipeline_cls = PIPELINE_CLS_MAP[self.model_config.task_type]
 
         self.pipe = pipeline_cls.from_pretrained(
-            model_descriptor, torch_dtype=torch.float16
+            model_descriptor, torch_dtype=torch.float16, cache_dir=sd_config.CACHE_DIR
         ).to(device)
 
         if not self.model_config.check_nsfw:
@@ -338,16 +337,18 @@ class StableDiffusion:
             images = self._generate_images_inpainting(
                 config=config, output_dir=output_dir
             )
+        else:
+            raise ValueError(f"Unsupported task type: {self.model_config.task_type}")
 
         return images
 
 
-model_config = StableDiffusionModelConfig(
+model_cfg = StableDiffusionModelConfig(
     task_type=TaskType.INPAINTING,
     check_nsfw=False,
-    seed=42,
+    seed=None,
 )
-sd = StableDiffusion(config=model_config)
+sd = StableDiffusion(config=model_cfg)
 
 mask = create_spherical_mask_on_center(512, 512, 150)
 mask.save("mask.png")
@@ -364,6 +365,6 @@ input_config = create_inpainting_config(
     guidance_scale=8,
 )
 
-output_dir = "outputs"
+output_folder = "outputs"
 
-sd.generate_images(config=input_config, output_dir=output_dir)
+sd.generate_images(config=input_config, output_dir=output_folder)
