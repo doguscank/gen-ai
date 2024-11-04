@@ -2,13 +2,13 @@ from gen_ai.image_gen.stable_diffusion_input_config import (
     StableDiffusionInputConfig,
 )
 from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
-from gen_ai.constants.task_types import TaskType
+from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.image_gen.stable_diffusion import StableDiffusion
 from gen_ai.img_utils import load_image, create_spherical_mask_on_center
 
 if __name__ == "__main__":
     model_cfg = StableDiffusionModelConfig(
-        task_type=TaskType.TEXT2IMG,
+        task_type=ImageGenTaskTypes.TEXT2IMG,
         check_nsfw=False,
         seed=None,
     )

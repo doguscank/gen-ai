@@ -4,7 +4,7 @@ from typing import Optional
 import torch
 from pydantic import BaseModel, ConfigDict
 
-from gen_ai.constants.task_types import TaskType
+from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 
 
 class StableDiffusionModelConfig(BaseModel):
@@ -17,8 +17,8 @@ class StableDiffusionModelConfig(BaseModel):
         The identifier of the model to use.
     device : str, optional
         The device to run the model on. Defaults to "cuda".
-    task_type : TaskType, optional
-        The type of task to perform. Defaults to TaskType.TEXT2IMG.
+    task_type : ImageGenTaskTypes, optional
+        The type of task to perform. Defaults to ImageGenTaskTypes.TEXT2IMG.
     check_nsfw : bool, optional
         Whether to check for NSFW content. Defaults to False.
     seed : int, optional
@@ -32,7 +32,7 @@ class StableDiffusionModelConfig(BaseModel):
     hf_model_id: Optional[str] = None
     model_path: Optional[Path] = None
     device: str = "cuda"
-    task_type: TaskType = TaskType.TEXT2IMG
+    task_type: ImageGenTaskTypes = ImageGenTaskTypes.TEXT2IMG
 
     check_nsfw: bool = False
 

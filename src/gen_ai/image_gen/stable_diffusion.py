@@ -13,7 +13,7 @@ from PIL import Image
 from safetensors.torch import load_file as load_safetensor_file
 
 from gen_ai.configs import stable_diffusion as sd_config
-from gen_ai.constants.task_types import TaskType
+from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.image_gen.stable_diffusion_input_config import (
     StableDiffusionInputConfig,
 )
@@ -24,16 +24,16 @@ from gen_ai.utils import pathify_strings
 # Add YOLO imports
 from gen_ai.pose.yolov11 import YOLOConfig, YOLOModel
 
-PIPELINE_CLS_MAP: Dict[TaskType, DiffusionPipeline] = {
-    TaskType.TEXT2IMG: StableDiffusionPipeline,
-    TaskType.IMG2IMG: StableDiffusionImg2ImgPipeline,
-    TaskType.INPAINTING: StableDiffusionInpaintPipeline,
+PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
+    ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
+    ImageGenTaskTypes.IMG2IMG: StableDiffusionImg2ImgPipeline,
+    ImageGenTaskTypes.INPAINTING: StableDiffusionInpaintPipeline,
 }
 
-PIPELINE_MODEL_MAP: Dict[TaskType, str] = {
-    TaskType.TEXT2IMG: sd_config.TEXT2IMG_MODEL_ID,
-    TaskType.IMG2IMG: sd_config.IMG2IMG_MODEL_ID,
-    TaskType.INPAINTING: sd_config.INPAINTING_MODEL_ID,
+PIPELINE_MODEL_MAP: Dict[ImageGenTaskTypes, str] = {
+    ImageGenTaskTypes.TEXT2IMG: sd_config.TEXT2IMG_MODEL_ID,
+    ImageGenTaskTypes.IMG2IMG: sd_config.IMG2IMG_MODEL_ID,
+    ImageGenTaskTypes.INPAINTING: sd_config.INPAINTING_MODEL_ID,
 }
 
 
@@ -370,13 +370,13 @@ class StableDiffusion:
 
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        if self.model_config.task_type == TaskType.TEXT2IMG:
+        if self.model_config.task_type == ImageGenTaskTypes.TEXT2IMG:
             images = self._generate_images_text2img(
                 config=config, output_dir=output_dir
             )
-        elif self.model_config.task_type == TaskType.IMG2IMG:
+        elif self.model_config.task_type == ImageGenTaskTypes.IMG2IMG:
             images = self._generate_images_img2img(config=config, output_dir=output_dir)
-        elif self.model_config.task_type == TaskType.INPAINTING:
+        elif self.model_config.task_type == ImageGenTaskTypes.INPAINTING:
             images = self._generate_images_inpainting(
                 config=config, output_dir=output_dir
             )
@@ -385,7 +385,9 @@ class StableDiffusion:
 
         return images
 
-    def initialize_yolo(self, model_name: str, model_path: str, device: str = 'cpu') -> YOLOModel:
+    def initialize_yolo(
+        self, model_name: str, model_path: str, device: str = "cpu"
+    ) -> YOLOModel:
         """
         Initialize the YOLO model.
 
@@ -403,5 +405,7 @@ class StableDiffusion:
         YOLOModel
             The initialized YOLO model.
         """
-        yolo_config = YOLOConfig(model_name=model_name, model_path=model_path, device=device)
+        yolo_config = YOLOConfig(
+            model_name=model_name, model_path=model_path, device=device
+        )
         return YOLOModel(config=yolo_config)
