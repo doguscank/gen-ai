@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, List, Optional
+from collections import namedtuple
 
 import torch
 from diffusers import (
@@ -9,21 +10,30 @@ from diffusers import (
     StableDiffusionPipeline,
 )
 from PIL import Image
+from safetensors.torch import load_file as load_safetensor_file
 
 from gen_ai.configs import stable_diffusion as sd_config
 from gen_ai.constants.task_types import TaskType
 from gen_ai.image_gen.stable_diffusion_input_config import (
     StableDiffusionInputConfig,
-    create_inpainting_config,
 )
 from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
-from gen_ai.img_utils import create_spherical_mask_on_center, load_image, save_images
+from gen_ai.img_utils import save_images
 from gen_ai.utils import pathify_strings
+
+# Add YOLO imports
+from gen_ai.pose.yolov11 import YOLOConfig, YOLOModel
 
 PIPELINE_CLS_MAP: Dict[TaskType, DiffusionPipeline] = {
     TaskType.TEXT2IMG: StableDiffusionPipeline,
     TaskType.IMG2IMG: StableDiffusionImg2ImgPipeline,
     TaskType.INPAINTING: StableDiffusionInpaintPipeline,
+}
+
+PIPELINE_MODEL_MAP: Dict[TaskType, str] = {
+    TaskType.TEXT2IMG: sd_config.TEXT2IMG_MODEL_ID,
+    TaskType.IMG2IMG: sd_config.IMG2IMG_MODEL_ID,
+    TaskType.INPAINTING: sd_config.INPAINTING_MODEL_ID,
 }
 
 
@@ -55,6 +65,27 @@ class StableDiffusion:
                     model_path=self.model_config.model_path,
                     device=self.model_config.device,
                 )
+
+    def _load_finetuned_weights(self, model_path: Path) -> None:
+        """
+        Load the finetuned weights for the Stable Diffusion model.
+
+        Parameters
+        ----------
+        model_path : Path
+            The path to the finetuned weights.
+
+        Returns
+        -------
+        None
+        """
+
+        if self.pipe is None:
+            raise ValueError("Pipeline must be loaded before loading weights.")
+
+        state_dict = load_safetensor_file(model_path)
+        self.pipe.unet.load_state_dict(state_dict)
+        self.pipe.to(self.model_config.device)
 
     def _load_pipeline(
         self,
@@ -88,6 +119,7 @@ class StableDiffusion:
             )
 
         model_descriptor = None
+        is_finetuned = False
 
         if hf_model_id is not None:
             if self.model_config.hf_model_id == hf_model_id and self.pipe is not None:
@@ -99,7 +131,11 @@ class StableDiffusion:
             if self.model_config.model_path == model_path and self.pipe is not None:
                 return
 
-            model_descriptor = model_path
+            if "diffusers_cache" not in model_path.parts:
+                is_finetuned = True
+                model_descriptor = PIPELINE_MODEL_MAP[self.model_config.task_type]
+            else:
+                model_descriptor = model_path
 
         if device is None:
             device = self.model_config.device
@@ -107,8 +143,15 @@ class StableDiffusion:
         pipeline_cls = PIPELINE_CLS_MAP[self.model_config.task_type]
 
         self.pipe = pipeline_cls.from_pretrained(
-            model_descriptor, torch_dtype=torch.float16, cache_dir=sd_config.CACHE_DIR
+            model_descriptor,
+            torch_dtype=torch.float16,
+            cache_dir=sd_config.CACHE_DIR,
+            # use_safetensors=True,
+            # variant="fp16",
         ).to(device)
+
+        if is_finetuned:
+            self._load_finetuned_weights(model_path)
 
         if not self.model_config.check_nsfw:
             self.pipe.safety_checker = None
@@ -342,29 +385,23 @@ class StableDiffusion:
 
         return images
 
+    def initialize_yolo(self, model_name: str, model_path: str, device: str = 'cpu') -> YOLOModel:
+        """
+        Initialize the YOLO model.
 
-model_cfg = StableDiffusionModelConfig(
-    task_type=TaskType.INPAINTING,
-    check_nsfw=False,
-    seed=None,
-)
-sd = StableDiffusion(config=model_cfg)
+        Parameters
+        ----------
+        model_name : str
+            The name of the YOLO model.
+        model_path : str
+            The path to the YOLO model.
+        device : str, optional
+            The device to run the model on, by default 'cpu'
 
-mask = create_spherical_mask_on_center(512, 512, 150)
-mask.save("mask.png")
-
-input_config = create_inpainting_config(
-    prompt="a little sheep",
-    image=load_image("E:\\Scripting Workspace\\Python\\GenAI\\outputs\\image_0.png"),
-    mask_image=load_image("mask.png"),
-    height=512,
-    width=512,
-    denoising_strength=0.8,
-    num_batches=1,
-    num_inference_steps=30,
-    guidance_scale=8,
-)
-
-output_folder = "outputs"
-
-sd.generate_images(config=input_config, output_dir=output_folder)
+        Returns
+        -------
+        YOLOModel
+            The initialized YOLO model.
+        """
+        yolo_config = YOLOConfig(model_name=model_name, model_path=model_path, device=device)
+        return YOLOModel(config=yolo_config)
