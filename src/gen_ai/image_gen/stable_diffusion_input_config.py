@@ -137,6 +137,7 @@ class StableDiffusionInputConfig(BaseModel):
         prompt: Union[str, List[str]],
         image: Image.Image,
         mask_image: Image.Image,
+        negative_prompt: Optional[str] = None,
         masked_image_latents: Optional[torch.Tensor] = None,
         height: int = 512,
         width: int = 512,
@@ -159,6 +160,7 @@ class StableDiffusionInputConfig(BaseModel):
         """This function creates a configuration for inpainting tasks."""
         return cls(
             prompt=prompt,
+            negative_prompt=negative_prompt,
             image=image,
             mask_image=mask_image,
             masked_image_latents=masked_image_latents,

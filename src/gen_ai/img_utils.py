@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import cv2
 import numpy as np
@@ -9,7 +9,7 @@ from tqdm import tqdm
 from gen_ai.utils import pathify_strings
 
 
-def load_image(image_path: Path) -> Image:
+def load_image(image_path: Path) -> Image.Image:
     """
     Load an image from the specified path.
 
@@ -20,14 +20,16 @@ def load_image(image_path: Path) -> Image:
 
     Returns
     -------
-    Image
+    Image.Image
         The loaded image.
     """
 
     return Image.open(image_path)
 
 
-def create_spherical_mask_on_center(height: int, width: int, radius: int) -> Image:
+def create_spherical_mask_on_center(
+    height: int, width: int, radius: int
+) -> Image.Image:
     """
     Create a spherical mask on the center of the image.
 
@@ -42,7 +44,7 @@ def create_spherical_mask_on_center(height: int, width: int, radius: int) -> Ima
 
     Returns
     -------
-    Image
+    Image.Image
         The spherical mask.
     """
 
@@ -130,3 +132,35 @@ def save_images(
         img_name = _get_image_name(default_image_name, start_idx + idx)
 
         image.save(f"{output_dir}/{img_name}.{extension}")
+
+
+def postprocess_mask(
+    mask: Union[Image.Image, np.ndarray], kernel_size: int = 5
+) -> Image.Image:
+    """
+    Post-process the mask.
+
+    Parameters
+    ----------
+    mask : Union[Image.Image, np.ndarray]
+        The mask to post-process.
+    kernel_size : int, optional
+        The kernel size to use for post-processing. Defaults to 5.
+
+    Returns
+    -------
+    Union[Image.Image, np.ndarray]
+        The post-processed mask.
+    """
+
+    if isinstance(mask, Image.Image):
+        mask = np.array(mask)
+
+    # apply gaussian blur
+    mask = cv2.GaussianBlur(mask, (kernel_size, kernel_size), 0)
+
+    # threshold the mask
+    _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+    mask = mask.astype(np.uint8)
+
+    return Image.fromarray(mask)

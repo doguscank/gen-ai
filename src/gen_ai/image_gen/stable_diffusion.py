@@ -123,35 +123,43 @@ class StableDiffusion:
 
         if hf_model_id is not None:
             if self.model_config.hf_model_id == hf_model_id and self.pipe is not None:
-                return
+                if self.pipe is not None:
+                    return
 
             model_descriptor = hf_model_id
 
         if model_path is not None:
             if self.model_config.model_path == model_path and self.pipe is not None:
-                return
+                if self.pipe is not None:
+                    return
 
             if "diffusers_cache" not in model_path.parts:
                 is_finetuned = True
-                model_descriptor = PIPELINE_MODEL_MAP[self.model_config.task_type]
-            else:
-                model_descriptor = model_path
+            model_descriptor = model_path
 
         if device is None:
             device = self.model_config.device
 
         pipeline_cls = PIPELINE_CLS_MAP[self.model_config.task_type]
 
-        self.pipe = pipeline_cls.from_pretrained(
-            model_descriptor,
-            torch_dtype=torch.float16,
-            cache_dir=sd_config.CACHE_DIR,
-            # use_safetensors=True,
-            # variant="fp16",
-        ).to(device)
-
         if is_finetuned:
-            self._load_finetuned_weights(model_path)
+            self.pipe = pipeline_cls.from_single_file(
+                model_descriptor,
+                cache_dir=sd_config.CACHE_DIR,
+                local_files_only=True,
+            ).to(device)
+        else:
+            self.pipe = pipeline_cls.from_pretrained(
+                model_descriptor,
+                torch_dtype=torch.float16,
+                cache_dir=sd_config.CACHE_DIR,
+                local_files_only=True,
+                # use_safetensors=True,
+                # variant="fp16",
+            ).to(device)
+
+        # if is_finetuned:
+        #     self._load_finetuned_weights(model_path)
 
         if not self.model_config.check_nsfw:
             self.pipe.safety_checker = None

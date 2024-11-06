@@ -1,10 +1,12 @@
 from pathlib import Path
 from typing import Optional
+from warnings import warn
 
 import torch
 from pydantic import BaseModel, ConfigDict
 
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
+from gen_ai.configs import stable_diffusion as sd_cfg
 
 
 class StableDiffusionModelConfig(BaseModel):
@@ -40,6 +42,14 @@ class StableDiffusionModelConfig(BaseModel):
     generator: Optional[torch.Generator] = None
 
     def model_post_init(self, __context) -> "StableDiffusionModelConfig":
+        if self.hf_model_id is None and self.model_path is None:
+            warn(
+                "No model provided. Using the default model.\n"
+                f"Task type: {self.task_type}\n"
+                f"Model ID: {sd_cfg.TASK_TYPE_MODEL_MAP[self.task_type]}"
+            )
+            self.hf_model_id = sd_cfg.TASK_TYPE_MODEL_MAP[self.task_type]
+
         # Initialize the generator
         if self.seed == -1 or self.seed is None:
             self.seed = torch.seed()

@@ -11,6 +11,7 @@ from sam2.sam2_image_predictor import SAM2ImagePredictor
 import cv2
 import numpy as np
 from typing import List, Union
+from gen_ai.logger import logger
 
 t0 = time.time()
 
@@ -18,16 +19,39 @@ device = "cuda:0" if torch.cuda.is_available() else "cpu"
 torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
 model = AutoModelForCausalLM.from_pretrained(
-    florence_cfg.FLORENCE_MODEL_ID,
+    florence_cfg.FLORENCE2_CAUSAL_LM_MODEL_ID,
     torch_dtype=torch_dtype,
     trust_remote_code=True,
     cache_dir=florence_cfg.CACHE_DIR,
 ).to(device)
 processor = AutoProcessor.from_pretrained(
-    florence_cfg.FLORENCE_MODEL_ID,
+    florence_cfg.FLORENCE2_PROCESSOR_MODEL_ID,
     trust_remote_code=True,
     cache_dir=florence_cfg.CACHE_DIR,
 )
+
+
+def create_text_prompt(texts: List[str]) -> str:
+    """
+    Create a text prompt from the given list of texts.
+
+    Parameters
+    ----------
+    texts : List[str]
+        The list of texts to create the prompt from.
+
+    Returns
+    -------
+    str
+        The created text prompt.
+    """
+
+    if len(texts) == 1:
+        text_prompt = texts[0]
+    else:
+        text_prompt = " <and> ".join(texts)
+    return text_prompt
+
 
 def postprocess_mask(
     mask: Union[Image.Image, np.ndarray], kernel_size: int = 5
@@ -99,6 +123,7 @@ predictor = SAM2ImagePredictor.from_pretrained(
 image = load_image(image_path)
 cv2_img = cv2.imread(image_path)
 
+print("bbox:", bbox)
 print("bbox.shape:", bbox.shape)
 
 with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
@@ -108,6 +133,8 @@ with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
         point_coords=None,
         multimask_output=True,
     )
+    
+    logger.info(f"all_masks: {all_masks}")
 
     if len(all_masks.shape) == 3:
         all_masks = all_masks[None, :, :, :]

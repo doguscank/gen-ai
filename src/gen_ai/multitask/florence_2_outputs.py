@@ -51,7 +51,7 @@ class BoundingBox(BaseModel):
             The coordinates of the bounding box.
         """
 
-        return np.array([self.x1, self.y1, self.x2, self.y2])
+        return np.asarray([self.x1, self.y1, self.x2, self.y2])
 
     @property
     def coords_int(self) -> np.ndarray:
@@ -92,7 +92,7 @@ class BoundingBoxes(BaseModel):
             The coordinates of the bounding boxes.
         """
 
-        return np.array([bbox.coords for bbox in self.bboxes])
+        return np.asarray([bbox.coords for bbox in self.bboxes])
 
     @property
     def coords_int(self) -> np.ndarray:
@@ -148,7 +148,7 @@ class Point(BaseModel):
             The coordinates of the point.
         """
 
-        return np.array([self.x, self.y])
+        return np.asarray([self.x, self.y])
 
     @property
     def coords_int(self) -> np.ndarray:
@@ -191,7 +191,7 @@ class Polygon(BaseModel):
             The coordinates of the polygon.
         """
 
-        return np.array([point.coords for point in self.points])
+        return np.asarray([point.coords for point in self.points])
 
     @property
     def coords_int(self) -> np.ndarray:
@@ -260,7 +260,7 @@ class Polygons(BaseModel):
             The coordinates of the polygons.
         """
 
-        return np.array([polygon.coords for polygon in self.polygons])
+        return np.asarray([polygon.coords for polygon in self.polygons])
 
     @property
     def coords_int(self) -> np.ndarray:
@@ -288,7 +288,7 @@ class Polygons(BaseModel):
             The coordinates of the polygons as a flattened array.
         """
 
-        return np.array([polygon.coords_flatten for polygon in self.polygons])
+        return np.asarray([polygon.coords_flatten for polygon in self.polygons])
 
     @property
     def coords_flatten_int(self) -> np.ndarray:
@@ -378,7 +378,7 @@ class QuadBox(BaseModel):
             The coordinates of the quadrilateral bounding box.
         """
 
-        return np.array(
+        return np.asarray(
             [self.x1, self.y1, self.x2, self.y2, self.x3, self.y3, self.x4, self.y4]
         )
 
@@ -421,7 +421,7 @@ class QuadBoxes(BaseModel):
             The coordinates of the quadrilateral bounding boxes.
         """
 
-        return np.array([quad_box.coords for quad_box in self.quad_boxes])
+        return np.asarray([quad_box.coords for quad_box in self.quad_boxes])
 
     @property
     def coords_int(self) -> np.ndarray:

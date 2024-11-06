@@ -53,7 +53,8 @@ class Florence2InputConfig(BaseModel):
 
     def model_post_init(self, __context) -> "Florence2InputConfig":
         if self.task_prompt == Florence2TaskTypes.OPEN_VOCABULARY_DETECTION:
-            self.text_prompt = create_text_prompt(self.text_prompt)
+            if isinstance(self.text_prompt, list):
+                self.text_prompt = create_text_prompt(self.text_prompt)
         else:
             if isinstance(self.text_prompt, list):
                 raise ValueError(
@@ -62,9 +63,9 @@ class Florence2InputConfig(BaseModel):
                 )
 
         if self.text_prompt is not None:
-            self.prompt = self.task_prompt + self.text_prompt
+            self.prompt = self.task_prompt.value + self.text_prompt
         else:
-            self.prompt = self.task_prompt
+            self.prompt = self.task_prompt.value
 
         if not control_prompt(
             text_prompt=self.text_prompt, task_prompt=self.task_prompt

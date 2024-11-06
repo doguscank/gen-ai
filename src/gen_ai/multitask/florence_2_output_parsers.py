@@ -64,12 +64,12 @@ def _parse_od(data: Dict[str, Sequence]) -> Union[BoundingBoxes, None]:
     result_bboxes: List[BoundingBox] = []
 
     for bbox, label in zip(bboxes, labels):
-        x1, x2, y1, y2 = bbox
+        x1, y1, x2, y2 = bbox
 
         if label == "":
             label = None
 
-        bbox_inst = BoundingBox(x1=x1, x2=x2, y1=y1, y2=y2, label=label)
+        bbox_inst = BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2, label=label)
         result_bboxes.append(bbox_inst)
 
     return BoundingBoxes(bboxes=result_bboxes)
@@ -117,10 +117,9 @@ def _parse_ovd(data: Dict[str, Sequence]) -> Union[OpenVocabularyDetection, None
         {"polygons": polygons, "labels": polygons_labels}
     )
 
-    if len(result_bboxes) == 0 and len(result_polygons) == 0:
-        return None
-
-    return OpenVocabularyDetection(bboxes=result_bboxes, polygons=result_polygons)
+    return OpenVocabularyDetection(
+        bounding_boxes=result_bboxes, polygons=result_polygons
+    )
 
 
 def _parse_class_and_loc(data: Dict[str, str]) -> Union[BoundingBoxes, None]:
@@ -182,6 +181,11 @@ def parse_output(
 ) -> Union[
     Caption, BoundingBoxes, Polygons, OpenVocabularyDetection, OCR, QuadBoxes, None
 ]:
+    try:
+        data = data[task_type.value]
+    except KeyError:
+        pass
+
     if task_type in CAPTION_TASKS:
         return _parse_caption(data)
     elif task_type in BBOX_TASKS:

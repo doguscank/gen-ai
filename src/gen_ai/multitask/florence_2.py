@@ -19,6 +19,7 @@ from gen_ai.multitask.florence_2_outputs import (
     QuadBoxes,
 )
 from gen_ai.multitask.florence_2_output_parsers import parse_output
+from gen_ai.logger import logger
 
 
 class Florence2:
@@ -37,9 +38,33 @@ class Florence2:
         """
 
         self.model_config = config
+        self.model = None
+        self.processor = None
 
         if self.model_config is not None:
-            self._load_pipeline()
+            logger.info(f"Loading Florence2 model with config: {self.model_config}")
+
+            self._load_pipeline(
+                causal_lm_hf_model_id=self.model_config.causal_lm_hf_model_id,
+                processor_hf_model_id=self.model_config.processor_hf_model_id,
+                causal_lm_model_path=self.model_config.causal_lm_model_path,
+                processor_model_path=self.model_config.processor_model_path,
+                device=self.model_config.device,
+            )
+        else:
+            logger.info("No Florence2 model configuration provided.")
+
+    def _check_model_ready(self) -> bool:
+        """
+        Check if the model is ready.
+
+        Returns
+        -------
+        bool
+            True if the model is ready, False otherwise.
+        """
+
+        return self.model is not None and self.processor is not None
 
     def _load_pipeline(
         self,
@@ -83,12 +108,14 @@ class Florence2:
                     processor_hf_model_id is not None
                     and self.model_config.processor_hf_model_id == processor_hf_model_id
                 ):
-                    return
+                    if self.model is not None and self.processor is not None:
+                        return
                 if (
                     processor_model_path is not None
                     and self.model_config.processor_model_path == processor_model_path
                 ):
-                    return
+                    if self.model is not None and self.processor is not None:
+                        return
             model_descriptor = causal_lm_hf_model_id
 
         if causal_lm_model_path is not None:
@@ -97,12 +124,14 @@ class Florence2:
                     processor_hf_model_id is not None
                     and self.model_config.processor_hf_model_id == processor_hf_model_id
                 ):
-                    return
+                    if self.model is not None and self.processor is not None:
+                        return
                 if (
                     processor_model_path is not None
                     and self.model_config.processor_model_path == processor_model_path
                 ):
-                    return
+                    if self.model is not None and self.processor is not None:
+                        return
             model_descriptor = causal_lm_model_path
 
         if processor_hf_model_id is not None:
@@ -116,10 +145,11 @@ class Florence2:
 
         self.model = AutoModelForCausalLM.from_pretrained(
             model_descriptor,
-            torch_dtype=self.torch_dtype,
+            torch_dtype=self.model_config.torch_dtype,
             trust_remote_code=True,
             cache_dir=florence_cfg.CACHE_DIR,
         ).to(device)
+
         self.processor = AutoProcessor.from_pretrained(
             processor_descriptor,
             trust_remote_code=True,
@@ -166,10 +196,13 @@ class Florence2:
 
         Returns
         -------
-        Union[Caption, BoundingBoxes, Polygons, OpenVocabularyDetection, OCR, 
+        Union[Caption, BoundingBoxes, Polygons, OpenVocabularyDetection, OCR,
         QuadBoxes, None]
             The output of the prediction.
         """
+
+        if not self._check_model_ready():
+            raise ValueError("Model not loaded.")
 
         inputs = self.processor(
             text=config.prompt,
@@ -191,9 +224,11 @@ class Florence2:
         )[0]
         parsed_answer = self.processor.post_process_generation(
             generated_text,
-            task=config.task_prompt,
+            task=config.task_prompt.value,
             image_size=(config.image.width, config.image.height),
         )
+
+        logger.info(f"Parsed answer: {parsed_answer}")
 
         parsed_result = parse_output(data=parsed_answer, task_type=config.task_prompt)
 
