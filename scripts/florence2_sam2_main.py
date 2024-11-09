@@ -1,3 +1,14 @@
+from PIL import Image
+
+from gen_ai.configs import florence_2 as florence_cfg
+from gen_ai.configs import segment_anything_2 as sam2_cfg
+from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
+from gen_ai.img_utils import load_image
+from gen_ai.logger import logger
+from gen_ai.multitask.florence_2 import Florence2
+from gen_ai.multitask.florence_2_input_config import Florence2InputConfig
+from gen_ai.multitask.florence_2_model_config import Florence2ModelConfig
+from gen_ai.multitask.florence_2_outputs import OpenVocabularyDetection
 from gen_ai.segmentation.segment_anything_2 import SegmentAnything2
 from gen_ai.segmentation.segment_anything_2_input_config import (
     SegmentAnything2InputConfig,
@@ -6,23 +17,8 @@ from gen_ai.segmentation.segment_anything_2_model_config import (
     SegmentAnything2ModelConfig,
 )
 from gen_ai.segmentation.segment_anything_2_outputs import SegmentAnything2Output
-from gen_ai.configs import segment_anything_2 as sam2_cfg
-from gen_ai.img_utils import load_image
-from gen_ai.multitask.florence_2 import Florence2
-from gen_ai.multitask.florence_2_input_config import Florence2InputConfig
-from gen_ai.multitask.florence_2_model_config import Florence2ModelConfig
-from gen_ai.multitask.florence_2_outputs import OpenVocabularyDetection
-from gen_ai.configs import florence_2 as florence_cfg
-from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-from PIL import Image
-from gen_ai.logger import logger
-import numpy as np
-from gen_ai.utils import measure_time
 from gen_ai.torch_utils import free_gpu_cache
-from gen_ai.image_gen.stable_diffusion import StableDiffusion
-from gen_ai.image_gen.stable_diffusion_input_config import StableDiffusionInputConfig
-from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
-from gen_ai.configs import stable_diffusion as sd_cfg
+from gen_ai.utils import measure_time
 
 if __name__ == "__main__":
     with measure_time("Florence2 Model Configuration"):
@@ -36,7 +32,7 @@ if __name__ == "__main__":
     with measure_time("Florence2 Model Initialization"):
         florence2_model = Florence2(config=florence2_model_cfg)
 
-    image_path = "E:\\Scripting Workspace\\Python\\GenAI\\input5.jpg"
+    image_path = "E:\\Scripting Workspace\\Python\\GenAI\\input1.jpg"
     image = load_image(image_path)
 
     with measure_time("Florence2 Input Configuration"):
@@ -82,13 +78,4 @@ if __name__ == "__main__":
     logger.info(f"SAM2 output: {sam2_output}")
 
     result_mask = Image.fromarray(sam2_output.mask)
-    result_mask.save("E:\\Scripting Workspace\\Python\\GenAI\\result_mask5.png")
-
-    del sam2_model
-    free_gpu_cache()
-
-    with measure_time("StableDiffusion Model Configuration"):
-        sd_model_cfg = StableDiffusionModelConfig(
-            hf_model_id=sd_cfg.INPAINTING_MODEL_ID,
-            device="cuda",
-        )
+    result_mask.save("E:\\Scripting Workspace\\Python\\GenAI\\result_mask1.png")

@@ -2,20 +2,46 @@
 
 This repository will be used as my Gen AI portfolio.
 
+# Integrated Models
+
+* Segment Anything 2
+* Florence2
+* Stable Diffusion 1.5
+
+# Florence2
+
+# Segment Anything 2
+
+# Stable Diffusion 1.5
+
+## Inpainting
+
+### Examples
+
+| Prompt | Input Image | Mask | Result |
+|--------|-------------|------|--------|
+| RAW photo of a man wearing a red and white fur coat | ![Inpainting Input](assets/inpainting_input.jpg) | ![Inpainting Mask](assets/inpainting_mask.png) | ![Inpainting Output](assets/inpainting_output.png) |
+
+# Installation
+
+Install package using `pip install -e .`. Then install required repositories in the `repositories` folder. Follow [RESOSITORIES.md](repositories/REPOSITORIES.md) file for details.
+
 # TO-DO
 
-1. ~~Implement Stable Diffusion 1.5 pipeline~~
-    1. ~~Text2Img~~
-    1. ~~Img2Img~~
-    1. ~~Inpainting~~
-1. Add local path loading support
-    1. Make fine-tuned models work
-1. Add LoRA support
-    1. Add changeable LoRA weights
-1. Add ControlNet support
-    1. Add ControlNet weights
-    1. Add ControlNet start/end iteration controls
-1. Add Groq API integration
-1. Add LoRA usage prediction using LLMs
-    1. llama 3.2 1B/3B must be tried first since those models can also be run on local.
-1. Implement UI using Gradio
+* ~~Implement Stable Diffusion 1.5 pipeline~~
+    * ~~Text2Img~~
+    * ~~Img2Img~~
+    * ~~Inpainting~~
+* ~~Add local path loading support~~
+    * ~~Make fine-tuned models work~~
+* Add prompt weighting
+    * Make prompt words weighted like in AUTOMATIC1111
+* Add LoRA support
+    * Add changeable LoRA weights
+* Add ControlNet support
+    * Add ControlNet weights
+    * Add ControlNet start/end iteration controls
+* Add Groq API integration
+* Add LoRA usage prediction using LLMs
+    * llama 3.2 1B/3B must be tried first since those models can also be run on local.
+* Implement UI using Gradio

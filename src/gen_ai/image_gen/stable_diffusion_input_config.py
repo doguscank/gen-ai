@@ -4,6 +4,13 @@ import torch
 from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
+from gen_ai.constants.diffusion_noise_scheduler_types import SchedulerTypes
+from gen_ai.constants.inpainting_configuration_types import (
+    InpaintingBlendingTypes,
+    InpaintingPostProcessTypes,
+    InpaintingPreProcessTypes,
+)
+
 
 class StableDiffusionInputConfig(BaseModel):
     """
@@ -42,6 +49,8 @@ class StableDiffusionInputConfig(BaseModel):
         linked to the text prompt. Defaults to 7.5.
     denoising_strength : float, optional
         The strength of denoising for img2img and inpainting tasks. Defaults to 0.75.
+    scheduler_type : SchedulerTypes, optional
+        The scheduler type to use for the denoising process.
     timesteps : list of int, optional
         Custom timesteps to use for the denoising process.
     sigmas : list of float, optional
@@ -54,6 +63,12 @@ class StableDiffusionInputConfig(BaseModel):
         A callback function to be called at the end of each step.
     callback_run_rate : int, optional
         The rate at which the callback function is called. Defaults to 5.
+    preprocess_type : InpaintingPreProcessTypes, optional
+        The pre-processing type for inpainting tasks.
+    postprocess_type : InpaintingPostProcessTypes, optional
+        The post-processing type for inpainting tasks.
+    blending_type : InpaintingBlendingTypes, optional
+        The blending type for inpainting tasks.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
@@ -66,6 +81,7 @@ class StableDiffusionInputConfig(BaseModel):
     mask_image: Optional[Image.Image] = None  # for inpainting
     masked_image_latents: Optional[torch.Tensor] = None  # for inpainting
     padding_mask_crop: Optional[int] = None  # for inpainting
+    latents: Optional[torch.Tensor] = None  # for inpainting
 
     height: int = 512
     width: int = 512
@@ -79,6 +95,7 @@ class StableDiffusionInputConfig(BaseModel):
     denoising_strength: float = Field(
         default=0.75, ge=0, le=1
     )  # for img2img and inpainting
+    scheduler_type: Optional[SchedulerTypes] = None
 
     timesteps: Optional[List[int]] = None
     sigmas: Optional[List[float]] = None
@@ -88,6 +105,10 @@ class StableDiffusionInputConfig(BaseModel):
 
     callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None
     callback_run_rate: int = 5
+
+    preprocess_type: Optional[InpaintingPreProcessTypes] = None
+    postprocess_type: Optional[InpaintingPostProcessTypes] = None
+    blending_type: Optional[InpaintingBlendingTypes] = None
 
     @classmethod
     def create_text2img_config(
@@ -102,6 +123,7 @@ class StableDiffusionInputConfig(BaseModel):
         timesteps: Optional[List[int]] = None,
         sigmas: Optional[List[float]] = None,
         guidance_scale: float = 7.5,
+        scheduler_type: Optional[SchedulerTypes] = None,
         eta: float = 0.0,
         prompt_embeds: Optional[torch.Tensor] = None,
         negative_prompt_embeds: Optional[torch.Tensor] = None,
@@ -122,6 +144,7 @@ class StableDiffusionInputConfig(BaseModel):
             timesteps=timesteps,
             sigmas=sigmas,
             guidance_scale=guidance_scale,
+            scheduler_type=scheduler_type,
             eta=eta,
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
@@ -137,8 +160,12 @@ class StableDiffusionInputConfig(BaseModel):
         prompt: Union[str, List[str]],
         image: Image.Image,
         mask_image: Image.Image,
+        preprocess_type: InpaintingPreProcessTypes,
+        postprocess_type: InpaintingPostProcessTypes,
+        blending_type: Optional[InpaintingBlendingTypes] = None,
         negative_prompt: Optional[str] = None,
         masked_image_latents: Optional[torch.Tensor] = None,
+        latents: Optional[torch.Tensor] = None,
         height: int = 512,
         width: int = 512,
         padding_mask_crop: Optional[int] = None,
@@ -149,6 +176,7 @@ class StableDiffusionInputConfig(BaseModel):
         timesteps: Optional[List[int]] = None,
         sigmas: Optional[List[float]] = None,
         guidance_scale: float = 7.5,
+        scheduler_type: Optional[SchedulerTypes] = None,
         eta: float = 0.0,
         prompt_embeds: Optional[torch.Tensor] = None,
         negative_prompt_embeds: Optional[torch.Tensor] = None,
@@ -164,12 +192,14 @@ class StableDiffusionInputConfig(BaseModel):
             image=image,
             mask_image=mask_image,
             masked_image_latents=masked_image_latents,
+            latents=latents,
             padding_mask_crop=padding_mask_crop,
             height=height,
             width=width,
             num_batches=num_batches,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
+            scheduler_type=scheduler_type,
             eta=eta,
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
@@ -181,6 +211,9 @@ class StableDiffusionInputConfig(BaseModel):
             timesteps=timesteps,
             sigmas=sigmas,
             num_images_per_prompt=num_images_per_prompt,
+            preprocess_type=preprocess_type,
+            postprocess_type=postprocess_type,
+            blending_type=blending_type,
         )
 
     @classmethod
@@ -195,6 +228,7 @@ class StableDiffusionInputConfig(BaseModel):
         timesteps: Optional[List[int]] = None,
         sigmas: Optional[List[float]] = None,
         guidance_scale: float = 7.5,
+        scheduler_type: Optional[SchedulerTypes] = None,
         eta: float = 0.0,
         prompt_embeds: Optional[torch.Tensor] = None,
         negative_prompt_embeds: Optional[torch.Tensor] = None,
@@ -211,6 +245,7 @@ class StableDiffusionInputConfig(BaseModel):
             num_batches=num_batches,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
+            scheduler_type=scheduler_type,
             denoising_strength=denoising_strength,
             eta=eta,
             prompt_embeds=prompt_embeds,

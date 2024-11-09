@@ -27,33 +27,6 @@ def load_image(image_path: Path) -> Image.Image:
     return Image.open(image_path)
 
 
-def create_spherical_mask_on_center(
-    height: int, width: int, radius: int
-) -> Image.Image:
-    """
-    Create a spherical mask on the center of the image.
-
-    Parameters
-    ----------
-    height : int
-        The height of the image.
-    width : int
-        The width of the image.
-    radius : int
-        The radius of the spherical mask.
-
-    Returns
-    -------
-    Image.Image
-        The spherical mask.
-    """
-
-    mask = np.zeros((height, width), np.uint8)
-    cv2.circle(mask, (width // 2, height // 2), radius, 255, -1)
-
-    return Image.fromarray(mask)
-
-
 def _get_image_name(default_image_name: str, idx: int) -> str:
     """
     Get the image name excluding the extension.
@@ -135,7 +108,9 @@ def save_images(
 
 
 def postprocess_mask(
-    mask: Union[Image.Image, np.ndarray], kernel_size: int = 5
+    mask: Union[Image.Image, np.ndarray],
+    kernel_size: int = 5,
+    dilation_iter: int = 1,
 ) -> Image.Image:
     """
     Post-process the mask.
@@ -161,6 +136,72 @@ def postprocess_mask(
 
     # threshold the mask
     _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+
+    mask = cv2.dilate(
+        mask, np.ones((kernel_size, kernel_size), np.uint8), iterations=dilation_iter
+    )
+
     mask = mask.astype(np.uint8)
 
     return Image.fromarray(mask)
+
+
+def pad_mask(mask: Image.Image, padding: int, iterations: int = 1) -> Image.Image:
+    """
+    Pad the mask with the specified padding.
+
+    Parameters
+    ----------
+    mask : Image.Image
+        The mask to pad.
+    padding : int
+        The padding to apply.
+    iterations : int, optional
+        The number of iterations for dilation, by default 1.
+
+    Returns
+    -------
+    Image.Image
+        The padded mask.
+    """
+    # Convert PIL Image to numpy array
+    mask_np = np.array(mask)
+
+    # Create kernel for dilation
+    kernel_size = 2 * padding + 1
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+
+    # Apply dilation
+    dilated_mask = cv2.dilate(mask_np, kernel, iterations=iterations)
+
+    # Convert back to PIL Image
+    return Image.fromarray(dilated_mask)
+
+
+def mask_image(image: Image.Image, mask: Image.Image) -> Image.Image:
+    """
+    Mask the image with the specified mask.
+
+    Parameters
+    ----------
+    image : Image.Image
+        The image to mask.
+    mask : Image.Image
+        The mask to apply.
+
+    Returns
+    -------
+    Image.Image
+        The masked image.
+    """
+
+    image_np = np.array(image)  # can be 3 or 1 channel
+    mask_np = np.array(mask)  # should be 1 channel
+
+    mask_np = (mask_np > 0).astype(np.uint8)
+    if mask_np.ndim == 2:
+        mask_np = mask_np[:, :, None]
+
+    image_np = np.where(mask_np, image_np, 0)
+
+    return Image.fromarray(image_np)

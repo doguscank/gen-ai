@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Dict, List, Optional
-from collections import namedtuple
 
 import torch
 from diffusers import (
@@ -14,15 +13,12 @@ from safetensors.torch import load_file as load_safetensor_file
 
 from gen_ai.configs import stable_diffusion as sd_config
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
-from gen_ai.image_gen.stable_diffusion_input_config import (
-    StableDiffusionInputConfig,
-)
+from gen_ai.image_gen.inpainting_utils import postprocess_outputs, preprocess_inputs
+from gen_ai.image_gen.scheduler_utils import get_scheduler
+from gen_ai.image_gen.stable_diffusion_input_config import StableDiffusionInputConfig
 from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
 from gen_ai.img_utils import save_images
 from gen_ai.utils import pathify_strings
-
-# Add YOLO imports
-from gen_ai.pose.yolov11 import YOLOConfig, YOLOModel
 
 PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
     ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
@@ -123,15 +119,13 @@ class StableDiffusion:
 
         if hf_model_id is not None:
             if self.model_config.hf_model_id == hf_model_id and self.pipe is not None:
-                if self.pipe is not None:
-                    return
+                return
 
             model_descriptor = hf_model_id
 
         if model_path is not None:
             if self.model_config.model_path == model_path and self.pipe is not None:
-                if self.pipe is not None:
-                    return
+                return
 
             if "diffusers_cache" not in model_path.parts:
                 is_finetuned = True
@@ -154,12 +148,7 @@ class StableDiffusion:
                 torch_dtype=torch.float16,
                 cache_dir=sd_config.CACHE_DIR,
                 local_files_only=True,
-                # use_safetensors=True,
-                # variant="fp16",
             ).to(device)
-
-        # if is_finetuned:
-        #     self._load_finetuned_weights(model_path)
 
         if not self.model_config.check_nsfw:
             self.pipe.safety_checker = None
@@ -327,11 +316,20 @@ class StableDiffusion:
         images = []
 
         for _ in range(config.num_batches):
+            image, mask_image = preprocess_inputs(
+                image=config.image,
+                mask=config.mask_image,
+                pre_process_type=config.preprocess_type,
+                output_width=config.width,
+                output_height=config.height,
+            )
+
             pipeline_images = self.pipe(
                 prompt=config.prompt,
-                image=config.image,
-                mask_image=config.mask_image,
+                image=image,
+                mask_image=mask_image,
                 masked_image_latents=config.masked_image_latents,
+                latents=config.latents,
                 height=config.height,
                 width=config.width,
                 padding_mask_crop=config.padding_mask_crop,
@@ -350,6 +348,18 @@ class StableDiffusion:
                 clip_skip=config.clip_skip,
                 callback_on_step_end=config.callback_on_step_end,
             ).images
+
+            pipeline_images = [
+                postprocess_outputs(
+                    image=config.image,
+                    mask=config.mask_image,
+                    inpainted_image=inpainted_image,
+                    pre_process_type=config.preprocess_type,
+                    post_process_type=config.postprocess_type,
+                    blending_type=config.blending_type,
+                )
+                for inpainted_image in pipeline_images
+            ]
 
             images.extend(pipeline_images)
 
@@ -378,6 +388,9 @@ class StableDiffusion:
 
         output_dir.mkdir(parents=True, exist_ok=True)
 
+        if config.scheduler_type is not None:
+            self.pipe.scheduler = get_scheduler(scheduler_type=config.scheduler_type)
+
         if self.model_config.task_type == ImageGenTaskTypes.TEXT2IMG:
             images = self._generate_images_text2img(
                 config=config, output_dir=output_dir
@@ -392,28 +405,3 @@ class StableDiffusion:
             raise ValueError(f"Unsupported task type: {self.model_config.task_type}")
 
         return images
-
-    def initialize_yolo(
-        self, model_name: str, model_path: str, device: str = "cpu"
-    ) -> YOLOModel:
-        """
-        Initialize the YOLO model.
-
-        Parameters
-        ----------
-        model_name : str
-            The name of the YOLO model.
-        model_path : str
-            The path to the YOLO model.
-        device : str, optional
-            The device to run the model on, by default 'cpu'
-
-        Returns
-        -------
-        YOLOModel
-            The initialized YOLO model.
-        """
-        yolo_config = YOLOConfig(
-            model_name=model_name, model_path=model_path, device=device
-        )
-        return YOLOModel(config=yolo_config)

@@ -5,30 +5,26 @@ class InpaintingPreProcessTypes(IntEnum):
     """
     Enum class for inpainting pre-processing types.
 
-    1- None: No pre-processing.
-    2- Resize: Resize the image and mask to the specified height and width.
-    3- Crop and Resize: Calculate the bounding box of the mask, adjust bounding box
+    1- Resize: Resize the image and mask to the specified height and width.
+    2- Crop and Resize: Calculate the bounding box of the mask, adjust bounding box
     to match the aspect ratio of the given height and width. Then, crop the image
     and mask according to the bounding box.
     """
 
-    NONE = 1
-    RESIZE = 2
-    CROP_AND_RESIZE = 3
+    RESIZE = 1
+    CROP_AND_RESIZE = 2
 
 
 class InpaintingPostProcessTypes(IntEnum):
     """
     Enum class for inpainting post-processing types.
 
-    1- None: No post-processing.
-    2- Direct Replace: Directly replace the inpainted region with the original image.
-    3- Blend: Blend the inpainted region with the original image.
+    1- Direct Replace: Directly replace the inpainted region with the original image.
+    2- Blend: Blend the inpainted region with the original image.
     """
 
-    NONE = 1
-    DIRECT_REPLACE = 2
-    BLEND = 3
+    DIRECT_REPLACE = 1
+    BLEND = 2
 
 
 class InpaintingBlendingTypes(IntEnum):
