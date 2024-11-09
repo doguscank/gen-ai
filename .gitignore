@@ -14,8 +14,11 @@ __pycache__/
 *.db
 *.faiss
 
-# Models
-models/
+# Downloaded files
+models/*
+!models/README.md
+embeddings/*
+!embeddings/README.md
 
 # Distribution / packaging
 .Python

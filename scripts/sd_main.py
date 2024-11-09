@@ -19,7 +19,7 @@ if __name__ == "__main__":
         ),
         device="cuda",
         task_type=ImageGenTaskTypes.INPAINTING,
-        seed=None,
+        seed=1,
     )
 
     image_path = "E:\\Scripting Workspace\\Python\\GenAI\\input1.jpg"
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         mask_image=mask,
         height=512,
         width=512,
-        preprocess_type=InpaintingPreProcessTypes.RESIZE,
+        preprocess_type=InpaintingPreProcessTypes.CROP_AND_RESIZE,
         postprocess_type=InpaintingPostProcessTypes.DIRECT_REPLACE,
         denoising_strength=0.7,
         guidance_scale=7.5,

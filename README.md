@@ -34,6 +34,9 @@ Install package using `pip install -e .`. Then install required repositories in 
     * ~~Inpainting~~
 * ~~Add local path loading support~~
     * ~~Make fine-tuned models work~~
+* Add textual inversion
+    * ~~Add loading textual inversion~~
+    * Add textual inversion training (https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_textual_inversion_training.ipynb#scrollTo=E3UREGd7EkLh)
 * Add prompt weighting
     * Make prompt words weighted like in AUTOMATIC1111
 * Add LoRA support

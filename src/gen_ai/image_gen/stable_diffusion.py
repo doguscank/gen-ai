@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union, overload
 
 import torch
 from diffusers import (
@@ -18,7 +18,7 @@ from gen_ai.image_gen.scheduler_utils import get_scheduler
 from gen_ai.image_gen.stable_diffusion_input_config import StableDiffusionInputConfig
 from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
 from gen_ai.img_utils import save_images
-from gen_ai.utils import pathify_strings
+from gen_ai.utils import check_if_hf_cache_exists, pathify_strings
 
 PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
     ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
@@ -34,6 +34,10 @@ PIPELINE_MODEL_MAP: Dict[ImageGenTaskTypes, str] = {
 
 
 class StableDiffusion:
+    """
+    The Stable Diffusion model for image generation.
+    """
+
     def __init__(
         self,
         *,
@@ -62,6 +66,19 @@ class StableDiffusion:
                     device=self.model_config.device,
                 )
 
+    def _check_model_ready(self) -> None:
+        """
+        Check if the model is ready.
+
+        Raises
+        ------
+        ValueError
+            If the model is not loaded.
+        """
+
+        if self.pipe is None:
+            raise ValueError("Model not loaded.")
+
     def _load_finetuned_weights(self, model_path: Path) -> None:
         """
         Load the finetuned weights for the Stable Diffusion model.
@@ -76,8 +93,7 @@ class StableDiffusion:
         None
         """
 
-        if self.pipe is None:
-            raise ValueError("Pipeline must be loaded before loading weights.")
+        self._check_model_ready()
 
         state_dict = load_safetensor_file(model_path)
         self.pipe.unet.load_state_dict(state_dict)
@@ -147,7 +163,10 @@ class StableDiffusion:
                 model_descriptor,
                 torch_dtype=torch.float16,
                 cache_dir=sd_config.CACHE_DIR,
-                local_files_only=True,
+                local_files_only=check_if_hf_cache_exists(
+                    cache_dir=sd_config.CACHE_DIR,
+                    model_id=model_descriptor,
+                ),
             ).to(device)
 
         if not self.model_config.check_nsfw:
@@ -179,6 +198,24 @@ class StableDiffusion:
 
         self.model_config = model_config
 
+    def _load_model_hard_set(self) -> None:
+        """
+        Load the model with the hard set configuration.
+
+        Returns
+        -------
+        None
+        """
+
+        if self.model_config.hf_model_id is not None:
+            self._load_pipeline(hf_model_id=self.model_config.hf_model_id)
+        elif self.model_config.model_path is not None:
+            self._load_pipeline(model_path=self.model_config.model_path)
+        else:
+            self._load_pipeline(
+                hf_model_id=PIPELINE_MODEL_MAP[self.model_config.task_type],
+            )
+
     @pathify_strings
     def _generate_images_text2img(
         self, config: StableDiffusionInputConfig, output_dir: Optional[Path] = None
@@ -197,12 +234,7 @@ class StableDiffusion:
             A list of generated images.
         """
 
-        if self.model_config.hf_model_id is not None:
-            self._load_pipeline(hf_model_id=self.model_config.hf_model_id)
-        elif self.model_config.model_path is not None:
-            self._load_pipeline(model_path=self.model_config.model_path)
-        else:
-            self._load_pipeline(hf_model_id=sd_config.TEXT2IMG_MODEL_ID)
+        self._load_model_hard_set()
 
         images = []
 
@@ -252,12 +284,7 @@ class StableDiffusion:
             A list of generated images.
         """
 
-        if self.model_config.hf_model_id is not None:
-            self._load_pipeline(hf_model_id=self.model_config.hf_model_id)
-        elif self.model_config.model_path is not None:
-            self._load_pipeline(model_path=self.model_config.model_path)
-        else:
-            self._load_pipeline(hf_model_id=sd_config.IMG2IMG_MODEL_ID)
+        self._load_model_hard_set()
 
         images = []
 
@@ -306,12 +333,7 @@ class StableDiffusion:
             A list of generated images.
         """
 
-        if self.model_config.hf_model_id is not None:
-            self._load_pipeline(hf_model_id=self.model_config.hf_model_id)
-        elif self.model_config.model_path is not None:
-            self._load_pipeline(model_path=self.model_config.model_path)
-        else:
-            self._load_pipeline(hf_model_id=sd_config.INPAINTING_MODEL_ID)
+        self._load_model_hard_set()
 
         images = []
 
@@ -386,6 +408,8 @@ class StableDiffusion:
             A list of generated images.
         """
 
+        self._check_model_ready()
+
         output_dir.mkdir(parents=True, exist_ok=True)
 
         if config.scheduler_type is not None:
@@ -405,3 +429,95 @@ class StableDiffusion:
             raise ValueError(f"Unsupported task type: {self.model_config.task_type}")
 
         return images
+
+    @overload
+    def load_textual_inversion(
+        self, *, file_path: Union[Path, List[Path]], token: Union[str, List[str]]
+    ) -> None:
+        ...
+
+    @overload
+    def load_textual_inversion(self, *, hf_model_id: Union[str, List[str]]) -> None:
+        ...
+
+    @pathify_strings
+    def load_textual_inversion(
+        self,
+        *,
+        hf_model_id: Optional[Union[str, List[str]]] = None,
+        file_path: Optional[Union[Path, List[Path]]] = None,
+        token: Optional[Union[str, List[str]]] = None,
+    ) -> None:
+        """
+        Load the textual inversion model.
+
+        Parameters
+        ----------
+        hf_model_id : Optional[str], optional
+            The HuggingFace model ID for the textual inversion model.
+        file_path : Optional[Path], optional
+            The path to the textual inversion model.
+        token : Optional[str], optional
+            The token to load.
+
+        Returns
+        -------
+        None
+        """
+
+        self._check_model_ready()
+
+        if file_path is not None:
+            if token is None:
+                raise ValueError("tokens must be provided when file_paths is provided.")
+            if isinstance(file_path, list) and isinstance(token, list):
+                if len(file_path) != len(token):
+                    raise ValueError(
+                        "Number of file paths and tokens must be the same."
+                    )
+            elif not (isinstance(file_path, Path) and isinstance(token, str)):
+                raise ValueError(
+                    "file_path and token must be either both single values or both lists."
+                )
+            self.pipe.load_textual_inversion(file_path, token=token)
+        elif hf_model_id is not None:
+            self.pipe.load_textual_inversion(
+                hf_model_id,
+                cache_dir=sd_config.CACHE_DIR,
+                only_local_files=check_if_hf_cache_exists(
+                    cache_dir=sd_config.CACHE_DIR, model_id=hf_model_id
+                ),
+            )
+        else:
+            raise ValueError("Either file_path or hf_model_id must be provided.")
+
+    def unload_textual_inversion(self, *, tokens: Union[str, List[str]]) -> None:
+        """
+        Unload the textual inversion model by tokens.
+
+        Parameters
+        ----------
+        tokens : Union[str, List[str]]
+            The tokens to unload.
+
+        Returns
+        -------
+        None
+        """
+
+        self._check_model_ready()
+
+        self.pipe.unload_textual_inversion(tokens=tokens)
+
+    def unload_all_textual_inversion(self) -> None:
+        """
+        Unload all textual inversion models.
+
+        Returns
+        -------
+        None
+        """
+
+        self._check_model_ready()
+
+        self.pipe.unload_textual_inversion()
