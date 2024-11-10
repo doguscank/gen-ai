@@ -1,5 +1,6 @@
-from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
 import re
+
+from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
 
 
 def _control_location_prompt(text_prompt: str) -> bool:

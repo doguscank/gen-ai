@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field, ConfigDict
-from PIL import Image
-import numpy as np
 from typing import Optional
+
+import numpy as np
+from PIL import Image
+from pydantic import BaseModel, ConfigDict
 
 
 class SegmentAnything2InputConfig(BaseModel):

@@ -1,25 +1,21 @@
-import torch
-from PIL import Image
-from transformers import AutoProcessor, AutoModelForCausalLM
-from gen_ai.configs import florence_2 as florence_cfg
-from gen_ai.multitask.florence_2_model_config import Florence2ModelConfig
-from gen_ai.multitask.florence_2_input_config import Florence2InputConfig
-from gen_ai.img_utils import load_image
-import cv2
-import numpy as np
-from typing import List, Union, Optional
 from pathlib import Path
-from gen_ai.utils import pathify_strings
-from gen_ai.multitask.florence_2_outputs import (
-    BoundingBoxes,
-    OpenVocabularyDetection,
+from typing import Optional, Union
+
+from transformers import AutoModelForCausalLM, AutoProcessor
+
+from gen_ai.configs import florence_2_cfg
+from gen_ai.logger import logger
+from gen_ai.multitask.florence_2.florence_2_input_config import Florence2InputConfig
+from gen_ai.multitask.florence_2.florence_2_model_config import Florence2ModelConfig
+from gen_ai.multitask.florence_2.florence_2_output_parsers import parse_output
+from gen_ai.multitask.florence_2.florence_2_outputs import (
     OCR,
+    BoundingBoxes,
     Caption,
+    OpenVocabularyDetection,
     Polygons,
     QuadBoxes,
 )
-from gen_ai.multitask.florence_2_output_parsers import parse_output
-from gen_ai.logger import logger
 
 
 class Florence2:
@@ -105,33 +101,42 @@ class Florence2:
         if causal_lm_hf_model_id is not None:
             if self.model_config.causal_lm_hf_model_id == causal_lm_hf_model_id:
                 if (
-                    processor_hf_model_id is not None
-                    and self.model_config.processor_hf_model_id == processor_hf_model_id
+                    processor_hf_model_id is not None  # given
+                    and (
+                        self.model_config.processor_hf_model_id == processor_hf_model_id
+                    )  # same with the loaded one
+                    and self.model is not None  # already loaded
+                    and self.processor is not None  # already loaded
                 ):
-                    if self.model is not None and self.processor is not None:
-                        return
+                    return
                 if (
-                    processor_model_path is not None
-                    and self.model_config.processor_model_path == processor_model_path
+                    processor_model_path is not None  # given
+                    and self.model_config.processor_model_path
+                    == processor_model_path  # same with the loaded one
+                    and self.model is not None  # already loaded
+                    and self.processor is not None  # already loaded
                 ):
-                    if self.model is not None and self.processor is not None:
-                        return
+                    return
             model_descriptor = causal_lm_hf_model_id
 
         if causal_lm_model_path is not None:
             if self.model_config.causal_lm_model_path == causal_lm_model_path:
                 if (
-                    processor_hf_model_id is not None
-                    and self.model_config.processor_hf_model_id == processor_hf_model_id
+                    processor_hf_model_id is not None  # given
+                    and self.model_config.processor_hf_model_id
+                    == processor_hf_model_id  # same with the loaded one
+                    and self.model is not None  # already loaded
+                    and self.processor is not None  # already loaded
                 ):
-                    if self.model is not None and self.processor is not None:
-                        return
+                    return
                 if (
-                    processor_model_path is not None
-                    and self.model_config.processor_model_path == processor_model_path
+                    processor_model_path is not None  # given
+                    and self.model_config.processor_model_path
+                    == processor_model_path  # same with the loaded one
+                    and self.model is not None  # already loaded
+                    and self.processor is not None  # already loaded
                 ):
-                    if self.model is not None and self.processor is not None:
-                        return
+                    return
             model_descriptor = causal_lm_model_path
 
         if processor_hf_model_id is not None:
@@ -147,13 +152,13 @@ class Florence2:
             model_descriptor,
             torch_dtype=self.model_config.torch_dtype,
             trust_remote_code=True,
-            cache_dir=florence_cfg.CACHE_DIR,
+            cache_dir=florence_2_cfg.CACHE_DIR,
         ).to(device)
 
         self.processor = AutoProcessor.from_pretrained(
             processor_descriptor,
             trust_remote_code=True,
-            cache_dir=florence_cfg.CACHE_DIR,
+            cache_dir=florence_2_cfg.CACHE_DIR,
         )
 
     def update_pipeline(self, model_config: Florence2ModelConfig) -> None:

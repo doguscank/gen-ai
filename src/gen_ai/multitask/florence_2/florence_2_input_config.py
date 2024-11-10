@@ -1,10 +1,11 @@
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
+
 from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-from gen_ai.multitask.florence_2_utils import create_text_prompt
-from gen_ai.multitask.florence_2_input_controller import control_prompt
+from gen_ai.multitask.florence_2.florence_2_input_controller import control_prompt
+from gen_ai.multitask.florence_2.florence_2_utils import create_text_prompt
 
 TEXT_PROMPT_REQUIRED_TASK_TYPES = [
     Florence2TaskTypes.CAPTION_TO_PHRASE_GROUNDING,

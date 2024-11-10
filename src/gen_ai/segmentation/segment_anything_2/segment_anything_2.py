@@ -1,18 +1,18 @@
+from typing import Optional, Tuple
+
+import numpy as np
 import torch
-from gen_ai.configs import segment_anything_2 as sam2_cfg
-from gen_ai.img_utils import load_image
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from gen_ai.segmentation.segment_anything_2_model_config import (
-    SegmentAnything2ModelConfig,
-)
-from gen_ai.segmentation.segment_anything_2_input_config import (
+
+from gen_ai.configs import sam2_cfg
+from gen_ai.logger import logger
+from gen_ai.segmentation.segment_anything_2.segment_anything_2_input_config import (
     SegmentAnything2InputConfig,
 )
-from gen_ai.segmentation.segment_anything_2_outputs import SegmentAnything2Output
-from typing import Optional, Tuple
-import numpy as np
-from gen_ai.logger import logger
-import cv2
+from gen_ai.segmentation.segment_anything_2.segment_anything_2_model_config import (
+    SegmentAnything2ModelConfig,
+)
+from gen_ai.segmentation.segment_anything_2.segment_anything_2_outputs import Mask
 
 
 class SegmentAnything2:
@@ -155,7 +155,7 @@ class SegmentAnything2:
     def predict(
         self,
         config: SegmentAnything2InputConfig,
-    ) -> SegmentAnything2Output:
+    ) -> Mask:
         """
         Predict the segmentation masks.
 
@@ -166,8 +166,8 @@ class SegmentAnything2:
 
         Returns
         -------
-        SegmentAnything2Output
-            The output.
+        Mask
+            The result mask.
         """
 
         if not self._check_model_ready():
@@ -196,11 +196,7 @@ class SegmentAnything2:
             (config.image.height, config.image.width), dtype=np.uint8
         )
 
-        for idx in range(len(all_masks)):
-            masks = all_masks[idx]
-            scores = all_scores[idx]
-            lowres_masks = all_lowres_masks[idx]
-
+        for masks, scores, lowres_masks in zip(all_masks, all_scores, all_lowres_masks):
             sorted_ind = np.argsort(scores)[::-1]
             masks = masks[sorted_ind]
             scores = scores[sorted_ind]
@@ -221,6 +217,6 @@ class SegmentAnything2:
                 last_mask = masks[np.argmax(scores)]
                 binary_mask = np.maximum(binary_mask, last_mask * 255)
 
-        return SegmentAnything2Output(
+        return Mask(
             mask=binary_mask,
         )

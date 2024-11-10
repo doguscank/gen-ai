@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Optional
-import torch
-
-from pydantic import BaseModel, ConfigDict, Field
 from warnings import warn
 
+import torch
+from pydantic import BaseModel, ConfigDict, Field
+
+from gen_ai.configs import florence_2_cfg
 from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-from gen_ai.configs import florence_2 as florence_cfg
 
 
 class Florence2ModelConfig(BaseModel):
@@ -37,7 +37,7 @@ class Florence2ModelConfig(BaseModel):
     causal_lm_model_path: Optional[Path] = None
     processor_model_path: Optional[Path] = None
     device: str = "cuda"
-    task_type: Florence2TaskTypes = florence_cfg.DEFAULT_TASK
+    task_type: Florence2TaskTypes = florence_2_cfg.DEFAULT_TASK
 
     torch_dtype: Optional[torch.dtype] = Field(None, init=False)
 
@@ -45,16 +45,16 @@ class Florence2ModelConfig(BaseModel):
         if self.causal_lm_hf_model_id is None and self.causal_lm_model_path is None:
             warn(
                 "No causal language model provided. Using the default model "
-                f"'{florence_cfg.FLORENCE2_CAUSAL_LM_MODEL_ID}'."
+                f"'{florence_2_cfg.FLORENCE2_CAUSAL_LM_MODEL_ID}'."
             )
-            self.causal_lm_hf_model_id = florence_cfg.FLORENCE2_CAUSAL_LM_MODEL_ID
+            self.causal_lm_hf_model_id = florence_2_cfg.FLORENCE2_CAUSAL_LM_MODEL_ID
 
         if self.processor_hf_model_id is None and self.processor_model_path is None:
             warn(
                 "No processor provided. Using the default processor "
-                f"'{florence_cfg.FLORENCE2_PROCESSOR_MODEL_ID}'."
+                f"'{florence_2_cfg.FLORENCE2_PROCESSOR_MODEL_ID}'."
             )
-            self.processor_hf_model_id = florence_cfg.FLORENCE2_PROCESSOR_MODEL_ID
+            self.processor_hf_model_id = florence_2_cfg.FLORENCE2_PROCESSOR_MODEL_ID
 
         self.task_type = torch.float16 if torch.cuda.is_available() else torch.float32
 

@@ -11,14 +11,22 @@ from diffusers import (
 from PIL import Image
 from safetensors.torch import load_file as load_safetensor_file
 
-from gen_ai.configs import stable_diffusion as sd_config
+from gen_ai.configs import stable_diffusion_15 as sd_config
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
-from gen_ai.image_gen.inpainting_utils import postprocess_outputs, preprocess_inputs
-from gen_ai.image_gen.scheduler_utils import get_scheduler
-from gen_ai.image_gen.stable_diffusion_input_config import StableDiffusionInputConfig
-from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
-from gen_ai.img_utils import save_images
+from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
+    StableDiffusionInputConfig,
+)
+from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_model_config import (
+    StableDiffusionModelConfig,
+)
+from gen_ai.image_gen.utils.inpainting_utils import (
+    postprocess_outputs,
+    preprocess_inputs,
+)
+from gen_ai.image_gen.utils.scheduler_utils import get_scheduler
+from gen_ai.logger import logger
 from gen_ai.utils import check_if_hf_cache_exists, pathify_strings
+from gen_ai.utils.img_utils import save_images
 
 PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
     ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
@@ -60,6 +68,10 @@ class StableDiffusion:
                 self.model_config.hf_model_id is not None
                 or self.model_config.model_path is not None
             ):
+                logger.info(
+                    f"Loading Stable Diffusion model with config: {self.model_config}"
+                )
+
                 self._load_pipeline(
                     hf_model_id=self.model_config.hf_model_id,
                     model_path=self.model_config.model_path,
@@ -145,7 +157,7 @@ class StableDiffusion:
 
             if "diffusers_cache" not in model_path.parts:
                 is_finetuned = True
-            model_descriptor = model_path
+            model_descriptor = str(model_path)
 
         if device is None:
             device = self.model_config.device

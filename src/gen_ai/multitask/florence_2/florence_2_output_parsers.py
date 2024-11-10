@@ -1,18 +1,19 @@
-from gen_ai.multitask.florence_2_outputs import (
+import re
+from typing import Dict, List, Sequence, Union
+
+from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
+from gen_ai.multitask.florence_2.florence_2_outputs import (
+    OCR,
     BoundingBox,
     BoundingBoxes,
     Caption,
-    OCR,
+    OpenVocabularyDetection,
     Point,
     Polygon,
     Polygons,
     QuadBox,
     QuadBoxes,
-    OpenVocabularyDetection,
 )
-from typing import Dict, List, Union, Optional, Sequence
-from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-import re
 
 CAPTION_TASKS = [
     Florence2TaskTypes.CAPTION,
@@ -188,17 +189,17 @@ def parse_output(
 
     if task_type in CAPTION_TASKS:
         return _parse_caption(data)
-    elif task_type in BBOX_TASKS:
+    if task_type in BBOX_TASKS:
         return _parse_od(data)
-    elif task_type in POLYGON_TASKS:
+    if task_type in POLYGON_TASKS:
         return _parse_polygon(data)
-    elif task_type in OVD_TASKS:
+    if task_type in OVD_TASKS:
         return _parse_ovd(data)
-    elif task_type in CLASS_AND_LOC_TASKS:
+    if task_type in CLASS_AND_LOC_TASKS:
         return _parse_class_and_loc(data)
-    elif task_type in OCR_TASKS:
+    if task_type in OCR_TASKS:
         return _parse_ocr(data)
-    elif task_type in OCR_WITH_REGION_TASKS:
+    if task_type in OCR_WITH_REGION_TASKS:
         return _parse_ocr_with_region(data)
-    else:
-        return None
+
+    return None

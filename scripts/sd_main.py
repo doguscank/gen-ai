@@ -1,21 +1,24 @@
 from pathlib import Path
 
-from gen_ai import img_utils
 from gen_ai.constants.diffusion_noise_scheduler_types import SchedulerTypes
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.constants.inpainting_configuration_types import (
     InpaintingPostProcessTypes,
     InpaintingPreProcessTypes,
 )
-from gen_ai.image_gen.stable_diffusion import StableDiffusion
-from gen_ai.image_gen.stable_diffusion_input_config import StableDiffusionInputConfig
-from gen_ai.image_gen.stable_diffusion_model_config import StableDiffusionModelConfig
-from gen_ai.utils import measure_time
+from gen_ai.image_gen.stable_diffusion_15.stable_diffusion import StableDiffusion
+from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
+    StableDiffusionInputConfig,
+)
+from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_model_config import (
+    StableDiffusionModelConfig,
+)
+from gen_ai.utils import img_utils, measure_time
 
 if __name__ == "__main__":
     sd_model_cfg = StableDiffusionModelConfig(
         model_path=Path(
-            "E:\\Scripting Workspace\\Python\\GenAI\\gen-ai\\src\\gen_ai\\models\\dreamshaper_8Inpainting.safetensors"
+            "E:\\Scripting Workspace\\Python\\GenAI\\gen-ai\\models\\dreamshaper_8Inpainting.safetensors"
         ),
         device="cuda",
         task_type=ImageGenTaskTypes.INPAINTING,

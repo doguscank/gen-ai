@@ -5,8 +5,8 @@ from warnings import warn
 import torch
 from pydantic import BaseModel, ConfigDict
 
+from gen_ai.configs import sd_cfg
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
-from gen_ai.configs import stable_diffusion as sd_cfg
 
 
 class StableDiffusionModelConfig(BaseModel):

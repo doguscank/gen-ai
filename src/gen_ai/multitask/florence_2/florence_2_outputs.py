@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-import numpy as np
 from typing import Optional
+
+import numpy as np
+from pydantic import BaseModel
 
 
 class Caption(BaseModel):

@@ -1,11 +1,11 @@
 from pathlib import Path
 from typing import Optional
-import torch
-
-from pydantic import BaseModel, ConfigDict, Field
 from warnings import warn
 
-from gen_ai.configs import segment_anything_2 as sam2_cfg
+import torch
+from pydantic import BaseModel, ConfigDict, Field
+
+from gen_ai.configs import sam2_cfg
 
 
 class SegmentAnything2ModelConfig(BaseModel):

@@ -3,22 +3,22 @@ from PIL import Image
 from gen_ai.configs import florence_2 as florence_cfg
 from gen_ai.configs import segment_anything_2 as sam2_cfg
 from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-from gen_ai.img_utils import load_image
 from gen_ai.logger import logger
-from gen_ai.multitask.florence_2 import Florence2
-from gen_ai.multitask.florence_2_input_config import Florence2InputConfig
-from gen_ai.multitask.florence_2_model_config import Florence2ModelConfig
-from gen_ai.multitask.florence_2_outputs import OpenVocabularyDetection
-from gen_ai.segmentation.segment_anything_2 import SegmentAnything2
-from gen_ai.segmentation.segment_anything_2_input_config import (
-    SegmentAnything2InputConfig,
+from gen_ai.multitask.florence_2 import (
+    Florence2,
+    Florence2InputConfig,
+    Florence2ModelConfig,
+    OpenVocabularyDetection,
 )
-from gen_ai.segmentation.segment_anything_2_model_config import (
+from gen_ai.segmentation.segment_anything_2 import (
+    Mask,
+    SegmentAnything2,
+    SegmentAnything2InputConfig,
     SegmentAnything2ModelConfig,
 )
-from gen_ai.segmentation.segment_anything_2_outputs import SegmentAnything2Output
-from gen_ai.torch_utils import free_gpu_cache
 from gen_ai.utils import measure_time
+from gen_ai.utils.img_utils import load_image
+from gen_ai.utils.torch_utils import free_gpu_cache
 
 if __name__ == "__main__":
     with measure_time("Florence2 Model Configuration"):
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     logger.info(f"Predicting with SAM2 model: {sam2_input}")
 
     with measure_time("SegmentAnything2 Prediction"):
-        sam2_output: SegmentAnything2Output = sam2_model.predict(sam2_input)
+        sam2_output: Mask = sam2_model.predict(sam2_input)
 
     logger.info(f"SAM2 output: {sam2_output}")
 
