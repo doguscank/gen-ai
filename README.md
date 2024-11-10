@@ -34,9 +34,11 @@ Install package using `pip install -e .`. Then install required repositories in 
     * ~~Inpainting~~
 * ~~Add local path loading support~~
     * ~~Make fine-tuned models work~~
+* ~~Implement Florence 2 pipeline~~
+* ~~Implement Segment Anything 2 pipeline~~
 * Add textual inversion
     * ~~Add loading textual inversion~~
-    * Add textual inversion training (https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_textual_inversion_training.ipynb#scrollTo=E3UREGd7EkLh)
+    * Add textual inversion training [[Source](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_textual_inversion_training.ipynb#scrollTo=E3UREGd7EkLh)]
 * Add prompt weighting
     * Make prompt words weighted like in AUTOMATIC1111
 * Add LoRA support
@@ -44,7 +46,9 @@ Install package using `pip install -e .`. Then install required repositories in 
 * Add ControlNet support
     * Add ControlNet weights
     * Add ControlNet start/end iteration controls
+* Add FreeU support [[HuggingFace](https://huggingface.co/docs/diffusers/main/en/using-diffusers/image_quality)] [[GitHub](https://github.com/ChenyangSi/FreeU)]
 * Add Groq API integration
 * Add LoRA usage prediction using LLMs
     * llama 3.2 1B/3B must be tried first since those models can also be run on local.
 * Implement UI using Gradio
+* Add API support

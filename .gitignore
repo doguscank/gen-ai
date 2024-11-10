@@ -19,6 +19,8 @@ models/*
 !models/README.md
 embeddings/*
 !embeddings/README.md
+repositories/*
+!repositories/README.md
 
 # Distribution / packaging
 .Python
