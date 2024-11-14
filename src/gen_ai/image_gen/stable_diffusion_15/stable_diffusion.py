@@ -26,7 +26,7 @@ from gen_ai.image_gen.utils.inpainting_utils import (
 from gen_ai.image_gen.utils.scheduler_utils import get_scheduler
 from gen_ai.logger import logger
 from gen_ai.utils import check_if_hf_cache_exists, pathify_strings
-from gen_ai.utils.img_utils import save_images
+from gen_ai.utils.file_ops import save_images
 
 PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
     ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
@@ -183,6 +183,8 @@ class StableDiffusion:
 
         if not self.model_config.check_nsfw:
             self.pipe.safety_checker = None
+
+        # self.pipe.enable_freeu(s1=0.9, s2=0.2, b1=1.5, b2=1.6)
 
         self.model_config.hf_model_id = hf_model_id
         self.model_config.model_path = model_path

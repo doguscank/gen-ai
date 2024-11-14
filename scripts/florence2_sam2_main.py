@@ -17,7 +17,7 @@ from gen_ai.segmentation.segment_anything_2 import (
     SegmentAnything2ModelConfig,
 )
 from gen_ai.utils import measure_time
-from gen_ai.utils.img_utils import load_image
+from gen_ai.utils.file_ops import load_image
 from gen_ai.utils.torch_utils import free_gpu_cache
 
 if __name__ == "__main__":

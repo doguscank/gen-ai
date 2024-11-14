@@ -1,5 +1,5 @@
 from gen_ai.detection.yolo_world import Detections, YOLOWorld, YOLOWorldModelConfig
-from gen_ai.utils.img_utils import load_image
+from gen_ai.utils.file_ops import load_image
 
 if __name__ == "__main__":
     image_path = "E:\\Scripting Workspace\\Python\\GenAI\\input1.jpg"

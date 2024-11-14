@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 
 import numpy as np
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Mask(BaseModel):
@@ -16,8 +16,10 @@ class Mask(BaseModel):
         The shape of the mask.
     """
 
+    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
+
     mask: np.ndarray
-    shape: Optional[Tuple[int, ...]] = None
+    shape: Optional[Tuple[int, ...]] = Field(None, init=False, repr=True)
     bbox: Optional[Tuple[int, int, int, int]] = Field(None, init=False, repr=False)
 
     @property
@@ -32,8 +34,6 @@ class Mask(BaseModel):
 
     def model_post_init(self, __context) -> "Mask":
         self.mask = self.mask.astype(np.uint8)
-
-        if self.shape is None:
-            self.shape = self.mask.shape
+        self.shape = self.mask.shape
 
         return self
