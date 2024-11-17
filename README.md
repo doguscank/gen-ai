@@ -49,6 +49,31 @@ YOLOWorld implements real-time object detection with dynamic category support. T
 
 The YOLOv11 Pose integration enables precise human pose estimation, providing detailed skeletal keypoint detection and pose analysis.
 
+# Features
+
+## Stable Diffusion
+
+### Prompt Weighting
+
+Users can set weights of prompt parts using a syntax similar to AUTOMATIC1111's. To set weight of a prompt part, encapsulate the part within parentheses and use a colon and set weight value before closing the parenthesis. Check examples below.
+
+```python
+prompt = "An (oil painting:1.3) image depicting a (lake view at (sunset: 1.1): 1.3)"
+
+from gen_ai.image_gen.clip.prompt_weighting import parse_prompt
+
+parsed_prompt = parse_prompt(prompt)
+
+>>> parsed_prompt
+[
+  Text Piece: 'An ', Attention Multiplier: 1.0,
+  Text Piece: 'oil painting', Attention Multiplier: 1.3,
+  Text Piece: ' image depicting a ', Attention Multiplier: 1.0,
+  Text Piece: 'lake view at ', Attention Multiplier: 1.3,
+  Text Piece: 'sunset', Attention Multiplier: 1.4300000000000002
+]
+```
+
 # Examples
 
 ## Stable Diffusion 1.5 Inpainting
@@ -78,6 +103,7 @@ The YOLOv11 Pose integration enables precise human pose estimation, providing de
     * ~~Make prompt words weighted like in AUTOMATIC1111~~
     * Extend prompt length to 75+ tokens
     * Make prompt weighting more optimized
+    * Add pre-defined embedding support (saving and loading embedding with unique names)
 * Add LoRA support
     * Add changeable LoRA weights
 * Add ControlNet support
