@@ -75,7 +75,9 @@ The YOLOv11 Pose integration enables precise human pose estimation, providing de
     * ~~Add loading textual inversion~~
     * Add textual inversion training [[Source](https://colab.research.google.com/github/huggingface/notebooks/blob/main/diffusers/sd_textual_inversion_training.ipynb#scrollTo=E3UREGd7EkLh)]
 * Add prompt weighting
-    * Make prompt words weighted like in AUTOMATIC1111
+    * ~~Make prompt words weighted like in AUTOMATIC1111~~
+    * Extend prompt length to 75+ tokens
+    * Make prompt weighting more optimized
 * Add LoRA support
     * Add changeable LoRA weights
 * Add ControlNet support
