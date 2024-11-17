@@ -10,6 +10,7 @@ from diffusers import (
 )
 from PIL import Image
 from safetensors.torch import load_file as load_safetensor_file
+from transformers import CLIPTextModel, CLIPTokenizer
 
 from gen_ai.configs import stable_diffusion_15 as sd_config
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
@@ -535,3 +536,48 @@ class StableDiffusion:
         self._check_model_ready()
 
         self.pipe.unload_textual_inversion()
+
+    @property
+    def tokenizer(self) -> CLIPTokenizer:
+        """
+        Get the tokenizer for the model.
+
+        Returns
+        -------
+        CLIPTokenizer
+            The tokenizer for the model.
+        """
+
+        self._check_model_ready()
+
+        return self.pipe.tokenizer
+
+    @property
+    def text_encoder(self) -> CLIPTextModel:
+        """
+        Get the text encoder for the model.
+
+        Returns
+        -------
+        CLIPTextModel
+            The text encoder for the model.
+        """
+
+        self._check_model_ready()
+
+        return self.pipe.text_encoder
+
+    @property
+    def device(self) -> str:
+        """
+        Get the device the model is running on.
+
+        Returns
+        -------
+        str
+            The device the model is running on.
+        """
+
+        self._check_model_ready()
+
+        return self.pipe.device

@@ -1,3 +1,4 @@
+import warnings
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
@@ -74,7 +75,7 @@ class StableDiffusionInputConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     prompt: Optional[Union[str, List[str]]] = None
-    negative_prompt: Optional[str] = None
+    negative_prompt: Optional[Union[str, List[str]]] = None
     prompt_embeds: Optional[torch.Tensor] = None
     negative_prompt_embeds: Optional[torch.Tensor] = None
     image: Optional[Image.Image] = None  # for inpainting and img2img
@@ -110,11 +111,33 @@ class StableDiffusionInputConfig(BaseModel):
     postprocess_type: Optional[InpaintingPostProcessTypes] = None
     blending_type: Optional[InpaintingBlendingTypes] = None
 
+    def model_post_init(self, __context) -> "StableDiffusionInputConfig":
+        if isinstance(self.prompt, list) and isinstance(self.negative_prompt, list):
+            if len(self.prompt) != len(self.negative_prompt):
+                raise ValueError(
+                    "Prompt and negative prompt lists must be of the same length."
+                )
+        if isinstance(self.prompt, str) and isinstance(self.negative_prompt, list):
+            self.negative_prompt = [self.negative_prompt] * len(self.prompt)
+        if isinstance(self.negative_prompt, str) and isinstance(self.prompt, list):
+            self.prompt = [self.prompt] * len(self.negative_prompt)
+
+        if self.prompt is None and self.prompt_embeds is None:
+            warnings.warn(
+                "Prompt is not provided."
+                "The model will generate images without any guidance."
+            )
+        if self.negative_prompt is None and self.negative_prompt_embeds is None:
+            warnings.warn(
+                "Negative prompt is not provided."
+                "The model will generate images without any negative guidance."
+            )
+
     @classmethod
     def create_text2img_config(
         cls,
         prompt: Optional[Union[str, List[str]]] = None,
-        negative_prompt: Optional[str] = None,
+        negative_prompt: Optional[Union[str, List[str]]] = None,
         height: int = 512,
         width: int = 512,
         batch_size: int = 1,
@@ -157,13 +180,15 @@ class StableDiffusionInputConfig(BaseModel):
     @classmethod
     def create_inpainting_config(
         cls,
-        prompt: Union[str, List[str]],
         image: Image.Image,
         mask_image: Image.Image,
         preprocess_type: InpaintingPreProcessTypes,
         postprocess_type: InpaintingPostProcessTypes,
+        prompt: Optional[Union[str, List[str]]] = None,
+        negative_prompt: Optional[Union[str, List[str]]] = None,
+        prompt_embeds: Optional[torch.Tensor] = None,
+        negative_prompt_embeds: Optional[torch.Tensor] = None,
         blending_type: Optional[InpaintingBlendingTypes] = None,
-        negative_prompt: Optional[str] = None,
         masked_image_latents: Optional[torch.Tensor] = None,
         latents: Optional[torch.Tensor] = None,
         height: int = 512,
@@ -178,8 +203,6 @@ class StableDiffusionInputConfig(BaseModel):
         guidance_scale: float = 7.5,
         scheduler_type: Optional[SchedulerTypes] = None,
         eta: float = 0.0,
-        prompt_embeds: Optional[torch.Tensor] = None,
-        negative_prompt_embeds: Optional[torch.Tensor] = None,
         cross_attention_kwargs: Optional[Dict[str, Any]] = None,
         guidance_rescale: float = 0.0,
         clip_skip: Optional[int] = None,
@@ -219,19 +242,20 @@ class StableDiffusionInputConfig(BaseModel):
     @classmethod
     def create_img2img_config(
         cls,
-        prompt: Union[str, List[str]],
         image: Image.Image,
         denoising_strength: float = 0.75,
         num_images_per_prompt: int = 1,
         num_batches: int = 1,
         num_inference_steps: int = 20,
+        prompt: Optional[Union[str, List[str]]] = None,
+        negative_prompt: Optional[Union[str, List[str]]] = None,
+        prompt_embeds: Optional[torch.Tensor] = None,
+        negative_prompt_embeds: Optional[torch.Tensor] = None,
         timesteps: Optional[List[int]] = None,
         sigmas: Optional[List[float]] = None,
         guidance_scale: float = 7.5,
         scheduler_type: Optional[SchedulerTypes] = None,
         eta: float = 0.0,
-        prompt_embeds: Optional[torch.Tensor] = None,
-        negative_prompt_embeds: Optional[torch.Tensor] = None,
         cross_attention_kwargs: Optional[Dict[str, Any]] = None,
         guidance_rescale: float = 0.0,
         clip_skip: Optional[int] = None,
@@ -240,6 +264,7 @@ class StableDiffusionInputConfig(BaseModel):
         """This function creates a configuration for img2img tasks."""
         return cls(
             prompt=prompt,
+            negative_prompt=negative_prompt,
             image=image,
             num_images_per_prompt=num_images_per_prompt,
             num_batches=num_batches,
