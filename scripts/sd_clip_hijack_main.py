@@ -7,7 +7,6 @@ from gen_ai.constants.inpainting_configuration_types import (
     InpaintingPostProcessTypes,
     InpaintingPreProcessTypes,
 )
-from gen_ai.image_gen.clip.prompt_weighting import process
 from gen_ai.image_gen.stable_diffusion_15.stable_diffusion import StableDiffusion
 from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
     StableDiffusionInputConfig,
@@ -37,25 +36,15 @@ if __name__ == "__main__":
     mask = img_utils.preprocess_mask(mask)
     mask = img_utils.pad_mask(mask, padding=30, iterations=1)
 
-    prompt = "RAW photo of a man wearing a (red:0.2) and (white:1.8) (fur coat:1.5)"
-    negative_prompt = "bad quality, low quality"
+    prompt = "RAW photo of a man wearing a (red:0.1) and (white:1.8) (fur coat:1.5)"
+    negative_prompt = "bad quality, low quality, (red:2)"
 
     with measure_time("Stable Diffusion Model Initialization"):
         sd_model = StableDiffusion(config=sd_model_cfg)
 
-    with measure_time("Prompt Processing"):
-        prompt_embeds = process(
-            prompt, tokenizer=sd_model.tokenizer, model=sd_model.text_encoder
-        ).to(device=sd_model.device)
-        negative_prompt_embeds = process(
-            negative_prompt, tokenizer=sd_model.tokenizer, model=sd_model.text_encoder
-        ).to(device=sd_model.device)
-
     sd_input = StableDiffusionInputConfig.create_inpainting_config(
-        prompt_embeds=prompt_embeds,
-        negative_prompt_embeds=negative_prompt_embeds,
-        # prompt=prompt,
-        # negative_prompt=negative_prompt,
+        prompt=prompt,
+        negative_prompt=negative_prompt,
         image=image,
         mask_image=mask,
         height=512,
@@ -74,4 +63,5 @@ if __name__ == "__main__":
         sd_output = sd_model.generate_images(
             config=sd_input,
             output_dir=Path("E:\\Scripting Workspace\\Python\\GenAI\\output"),
+            use_prompt_weighting=True,
         )

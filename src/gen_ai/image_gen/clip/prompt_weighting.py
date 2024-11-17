@@ -9,6 +9,10 @@ from typing import List, Union
 import torch
 from transformers import CLIPTextModel, CLIPTokenizer
 
+from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
+    StableDiffusionInputConfig,
+)
+
 _MAX_TOKEN_COUNT = 75  # excluding the bos and eos tokens
 _DEFAULT_ATTENTION = 1.0
 
@@ -195,9 +199,8 @@ def multiply_attention(
 
     working_pieces = prompt_pieces if inplace else prompt_pieces.copy()
 
-    working_pieces[start_pos:] = [
-        piece.multiply_attention(multiplier) for piece in working_pieces[start_pos:]
-    ]
+    for piece in working_pieces[start_pos:]:
+        piece.multiply_attention(multiplier)
 
     return None if inplace else working_pieces
 
@@ -358,3 +361,51 @@ def process(
         embeddings.append(final_output)
 
     return torch.hstack(embeddings)
+
+
+def process_input_config(
+    input_config: StableDiffusionInputConfig,
+    tokenizer: CLIPTokenizer,
+    model: CLIPTextModel,
+    update_mean: bool = True,
+    device: str = "cuda",
+) -> StableDiffusionInputConfig:
+    """
+    Processes the input config and returns the embeddings.
+
+    Parameters
+    ----------
+    input_config : StableDiffusionInputConfig
+        The input config to process.
+    tokenizer : CLIPTokenizer
+        The tokenizer to use.
+    model : CLIPTextModel
+        The model to use.
+    update_mean : bool, optional
+        If True, updates the mean of the embeddings. Default is True.
+    device : str, optional
+        The device to use. Default is "cuda".
+
+    Returns
+    -------
+    StableDiffusionInputConfig
+        The updated input config.
+    """
+
+    prompt = input_config.prompt
+    negative_prompt = input_config.negative_prompt
+
+    input_config.prompt_embeds = process(
+        prompt=prompt, tokenizer=tokenizer, model=model, update_mean=update_mean
+    ).to(device=device)
+    input_config.negative_prompt_embeds = process(
+        prompt=negative_prompt,
+        tokenizer=tokenizer,
+        model=model,
+        update_mean=update_mean,
+    ).to(device=device)
+
+    input_config.prompt = None
+    input_config.negative_prompt = None
+
+    return input_config
