@@ -2,11 +2,7 @@ from typing import List
 
 from ultralytics.engine.results import Results
 
-from gen_ai.detection.yolo_world.yolo_world_outputs import (
-    BoundingBox,
-    Detection,
-    Detections,
-)
+from gen_ai.detection.yolo_world.outputs import BoundingBox, Detection, Detections
 
 
 def parse_yolo_world_output(results: Results, class_names: List[str]) -> Detections:

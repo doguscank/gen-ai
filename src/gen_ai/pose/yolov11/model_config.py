@@ -2,12 +2,11 @@ from pathlib import Path
 from typing import Optional
 from warnings import warn
 
-from pydantic import BaseModel, ConfigDict
-
+from gen_ai.base.model_config import ModelConfig
 from gen_ai.configs import yolov11_cfg
 
 
-class YOLOv11ModelConfig(BaseModel):
+class YOLOv11ModelConfig(ModelConfig):
     """
     Configuration class for YOLOModel.
 
@@ -20,8 +19,6 @@ class YOLOv11ModelConfig(BaseModel):
     device : str
         The device to use for the model
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     model_name: Optional[str] = None
     model_path: Optional[Path] = None

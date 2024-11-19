@@ -7,13 +7,9 @@ from gen_ai.constants.inpainting_configuration_types import (
     InpaintingPostProcessTypes,
     InpaintingPreProcessTypes,
 )
+from gen_ai.image_gen.stable_diffusion_15.input import StableDiffusionInput
+from gen_ai.image_gen.stable_diffusion_15.model_config import StableDiffusionModelConfig
 from gen_ai.image_gen.stable_diffusion_15.stable_diffusion import StableDiffusion
-from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
-    StableDiffusionInputConfig,
-)
-from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_model_config import (
-    StableDiffusionModelConfig,
-)
 from gen_ai.utils import file_ops, img_utils, measure_time
 
 if __name__ == "__main__":
@@ -37,7 +33,7 @@ if __name__ == "__main__":
     mask = img_utils.preprocess_mask(mask)
     mask = img_utils.pad_mask(mask, padding=30, iterations=1)
 
-    sd_input = StableDiffusionInputConfig.create_inpainting_config(
+    sd_input = StableDiffusionInput.create_inpainting_config(
         prompt="RAW photo of a man wearing a red and white fur coat",
         negative_prompt="bad quality, low quality",
         image=image,
@@ -58,7 +54,7 @@ if __name__ == "__main__":
         sd_model = StableDiffusion(config=sd_model_cfg)
 
     with measure_time("Stable Diffusion Prediction"):
-        sd_output = sd_model.generate_images(
+        sd_output = sd_model(
             config=sd_input,
             output_dir=Path("E:\\Scripting Workspace\\Python\\GenAI\\output"),
         )

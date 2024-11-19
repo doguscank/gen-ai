@@ -6,14 +6,14 @@ from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
 from gen_ai.logger import logger
 from gen_ai.multitask.florence_2 import (
     Florence2,
-    Florence2InputConfig,
+    Florence2Input,
     Florence2ModelConfig,
     OpenVocabularyDetection,
 )
 from gen_ai.segmentation.segment_anything_2 import (
     Mask,
     SegmentAnything2,
-    SegmentAnything2InputConfig,
+    SegmentAnything2Input,
     SegmentAnything2ModelConfig,
 )
 from gen_ai.utils import measure_time
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     image = load_image(image_path)
 
     with measure_time("Florence2 Input Configuration"):
-        florence2_input = Florence2InputConfig(
+        florence2_input = Florence2Input(
             image=image,
             text_prompt="clothing",
             task_prompt=Florence2TaskTypes.OPEN_VOCABULARY_DETECTION,
@@ -45,9 +45,7 @@ if __name__ == "__main__":
     logger.info(f"Predicting with Florence2 model: {florence2_input}")
 
     with measure_time("Florence2 Prediction"):
-        florence2_output: OpenVocabularyDetection = florence2_model.predict(
-            florence2_input
-        )
+        florence2_output: OpenVocabularyDetection = florence2_model(florence2_input)
 
     logger.info(f"Florence2 output: {florence2_output}")
 
@@ -64,7 +62,7 @@ if __name__ == "__main__":
         sam2_model = SegmentAnything2(config=sam2_model_cfg)
 
     with measure_time("SegmentAnything2 Input Configuration"):
-        sam2_input = SegmentAnything2InputConfig(
+        sam2_input = SegmentAnything2Input(
             image=image,
             bounding_box=florence2_output.bounding_boxes.coords_int,
             refine_mask=True,
@@ -73,7 +71,7 @@ if __name__ == "__main__":
     logger.info(f"Predicting with SAM2 model: {sam2_input}")
 
     with measure_time("SegmentAnything2 Prediction"):
-        sam2_output: Mask = sam2_model.predict(sam2_input)
+        sam2_output: Mask = sam2_model(sam2_input)
 
     logger.info(f"SAM2 output: {sam2_output}")
 

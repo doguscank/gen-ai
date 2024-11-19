@@ -1,9 +1,9 @@
 from typing import List
 
-from pydantic import BaseModel
+from gen_ai.base.output import Output
 
 
-class BoundingBox(BaseModel):
+class BoundingBox(Output):
     """
     Bounding box coordinates.
 
@@ -25,7 +25,7 @@ class BoundingBox(BaseModel):
     y2: float
 
 
-class Detection(BaseModel):
+class Detection(Output):
     """
     Single object detection result.
 
@@ -44,7 +44,7 @@ class Detection(BaseModel):
     box: BoundingBox
 
 
-class Detections(BaseModel):
+class Detections(Output):
     """
     Collection of object detections.
 

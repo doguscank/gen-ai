@@ -2,7 +2,7 @@ import re
 from typing import Dict, List, Sequence, Union
 
 from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-from gen_ai.multitask.florence_2.florence_2_outputs import (
+from gen_ai.multitask.florence_2.outputs import (
     OCR,
     BoundingBox,
     BoundingBoxes,

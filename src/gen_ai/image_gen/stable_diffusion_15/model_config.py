@@ -3,13 +3,13 @@ from typing import Optional
 from warnings import warn
 
 import torch
-from pydantic import BaseModel, ConfigDict
 
+from gen_ai.base.model_config import ModelConfig
 from gen_ai.configs import sd_cfg
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 
 
-class StableDiffusionModelConfig(BaseModel):
+class StableDiffusionModelConfig(ModelConfig):
     """
     Configuration class for Stable Diffusion.
 
@@ -30,8 +30,6 @@ class StableDiffusionModelConfig(BaseModel):
     lora_dir : Path, optional
         The directory containing the Lora models. Defaults to None.
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     hf_model_id: Optional[str] = None
     model_path: Optional[Path] = None

@@ -3,12 +3,13 @@ from typing import Optional
 from warnings import warn
 
 import torch
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from gen_ai.base.model_config import ModelConfig
 from gen_ai.configs import sam2_cfg
 
 
-class SegmentAnything2ModelConfig(BaseModel):
+class SegmentAnything2ModelConfig(ModelConfig):
     """
     Configuration class for Segment Anything 2.
 
@@ -21,8 +22,6 @@ class SegmentAnything2ModelConfig(BaseModel):
     device : str, optional
         The device to run the model on. Defaults to "cuda".
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     hf_model_id: Optional[str] = None
     model_path: Optional[Path] = None

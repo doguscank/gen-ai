@@ -9,9 +9,7 @@ from typing import List, Union
 import torch
 from transformers import CLIPTextModel, CLIPTokenizer
 
-from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
-    StableDiffusionInputConfig,
-)
+from gen_ai.image_gen.stable_diffusion_15.input import StableDiffusionInput
 
 _MAX_TOKEN_COUNT = 75  # excluding the bos and eos tokens
 _DEFAULT_ATTENTION = 1.0
@@ -364,18 +362,18 @@ def process(
 
 
 def process_input_config(
-    input_config: StableDiffusionInputConfig,
+    input_config: StableDiffusionInput,
     tokenizer: CLIPTokenizer,
     model: CLIPTextModel,
     update_mean: bool = True,
     device: str = "cuda",
-) -> StableDiffusionInputConfig:
+) -> StableDiffusionInput:
     """
     Processes the input config and returns the embeddings.
 
     Parameters
     ----------
-    input_config : StableDiffusionInputConfig
+    input_config : StableDiffusionInput
         The input config to process.
     tokenizer : CLIPTokenizer
         The tokenizer to use.
@@ -388,7 +386,7 @@ def process_input_config(
 
     Returns
     -------
-    StableDiffusionInputConfig
+    StableDiffusionInput
         The updated input config.
     """
 

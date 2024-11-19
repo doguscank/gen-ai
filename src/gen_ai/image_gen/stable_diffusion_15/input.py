@@ -3,8 +3,9 @@ from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
 from PIL import Image
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from gen_ai.base.input import Input
 from gen_ai.constants.diffusion_noise_scheduler_types import SchedulerTypes
 from gen_ai.constants.inpainting_configuration_types import (
     InpaintingBlendingTypes,
@@ -13,7 +14,7 @@ from gen_ai.constants.inpainting_configuration_types import (
 )
 
 
-class StableDiffusionInputConfig(BaseModel):
+class StableDiffusionInput(Input):
     """
     Configuration class for Stable Diffusion.
 
@@ -72,8 +73,6 @@ class StableDiffusionInputConfig(BaseModel):
         The blending type for inpainting tasks.
     """
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
-
     prompt: Optional[Union[str, List[str]]] = None
     negative_prompt: Optional[Union[str, List[str]]] = None
     prompt_embeds: Optional[torch.Tensor] = None
@@ -111,7 +110,7 @@ class StableDiffusionInputConfig(BaseModel):
     postprocess_type: Optional[InpaintingPostProcessTypes] = None
     blending_type: Optional[InpaintingBlendingTypes] = None
 
-    def model_post_init(self, __context) -> "StableDiffusionInputConfig":
+    def model_post_init(self, __context) -> "StableDiffusionInput":
         if isinstance(self.prompt, list) and isinstance(self.negative_prompt, list):
             if len(self.prompt) != len(self.negative_prompt):
                 raise ValueError(
@@ -154,7 +153,7 @@ class StableDiffusionInputConfig(BaseModel):
         guidance_rescale: float = 0.0,
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
-    ) -> "StableDiffusionInputConfig":
+    ) -> "StableDiffusionInput":
         """This function creates a configuration for text2img tasks."""
         return cls(
             prompt=prompt,
@@ -207,7 +206,7 @@ class StableDiffusionInputConfig(BaseModel):
         guidance_rescale: float = 0.0,
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
-    ) -> "StableDiffusionInputConfig":
+    ) -> "StableDiffusionInput":
         """This function creates a configuration for inpainting tasks."""
         return cls(
             prompt=prompt,
@@ -260,7 +259,7 @@ class StableDiffusionInputConfig(BaseModel):
         guidance_rescale: float = 0.0,
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
-    ) -> "StableDiffusionInputConfig":
+    ) -> "StableDiffusionInput":
         """This function creates a configuration for img2img tasks."""
         return cls(
             prompt=prompt,

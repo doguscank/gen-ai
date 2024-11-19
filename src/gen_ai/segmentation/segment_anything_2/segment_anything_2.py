@@ -4,18 +4,17 @@ import numpy as np
 import torch
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 
+from gen_ai.base.model import Model
 from gen_ai.configs import sam2_cfg
 from gen_ai.logger import logger
-from gen_ai.segmentation.segment_anything_2.segment_anything_2_input_config import (
-    SegmentAnything2InputConfig,
-)
-from gen_ai.segmentation.segment_anything_2.segment_anything_2_model_config import (
+from gen_ai.segmentation.segment_anything_2.input import SegmentAnything2Input
+from gen_ai.segmentation.segment_anything_2.model_config import (
     SegmentAnything2ModelConfig,
 )
-from gen_ai.segmentation.segment_anything_2.segment_anything_2_outputs import Mask
+from gen_ai.segmentation.segment_anything_2.outputs import Mask
 
 
-class SegmentAnything2:
+class SegmentAnything2(Model):
     def __init__(
         self,
         *,
@@ -152,16 +151,16 @@ class SegmentAnything2:
 
         return masks, ious, low_res_masks
 
-    def predict(
+    def __call__(
         self,
-        config: SegmentAnything2InputConfig,
+        config: SegmentAnything2Input,
     ) -> Mask:
         """
         Predict the segmentation masks.
 
         Parameters
         ----------
-        config : SegmentAnything2InputConfig
+        config : SegmentAnything2Input
             The input configuration.
 
         Returns
@@ -210,7 +209,7 @@ class SegmentAnything2:
                 new_input_config.multimask_output = False
                 new_input_config.refine_mask = False
 
-                refined_output = self.predict(new_input_config)
+                refined_output = self.__call__(new_input_config)
 
                 binary_mask = np.maximum(binary_mask, refined_output.mask)
             else:

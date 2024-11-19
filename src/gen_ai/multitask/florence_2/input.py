@@ -1,11 +1,12 @@
 from typing import List, Optional, Union
 
 from PIL import Image
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from gen_ai.base.input import Input
 from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
-from gen_ai.multitask.florence_2.florence_2_input_controller import control_prompt
-from gen_ai.multitask.florence_2.florence_2_utils import create_text_prompt
+from gen_ai.multitask.florence_2.input_controller import control_prompt
+from gen_ai.multitask.florence_2.utils import create_text_prompt
 
 TEXT_PROMPT_REQUIRED_TASK_TYPES = [
     Florence2TaskTypes.CAPTION_TO_PHRASE_GROUNDING,
@@ -17,7 +18,7 @@ TEXT_PROMPT_REQUIRED_TASK_TYPES = [
 ]
 
 
-class Florence2InputConfig(BaseModel):
+class Florence2Input(Input):
     """
     Configuration class for Florence2.
 
@@ -41,8 +42,6 @@ class Florence2InputConfig(BaseModel):
         Whether to sample. Defaults to False.
     """
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
-
     image: Image.Image
     text_prompt: Optional[Union[str, List[str]]] = None  # List[str] is used for OVD
     task_prompt: Florence2TaskTypes
@@ -52,7 +51,7 @@ class Florence2InputConfig(BaseModel):
     early_stopping: bool = False
     do_sample: bool = False
 
-    def model_post_init(self, __context) -> "Florence2InputConfig":
+    def model_post_init(self, __context) -> "Florence2Input":
         if self.task_prompt == Florence2TaskTypes.OPEN_VOCABULARY_DETECTION:
             if isinstance(self.text_prompt, list):
                 self.text_prompt = create_text_prompt(self.text_prompt)

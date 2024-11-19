@@ -5,10 +5,10 @@ from transformers import AutoModelForCausalLM, AutoProcessor
 
 from gen_ai.configs import florence_2_cfg
 from gen_ai.logger import logger
-from gen_ai.multitask.florence_2.florence_2_input_config import Florence2InputConfig
-from gen_ai.multitask.florence_2.florence_2_model_config import Florence2ModelConfig
-from gen_ai.multitask.florence_2.florence_2_output_parsers import parse_output
-from gen_ai.multitask.florence_2.florence_2_outputs import (
+from gen_ai.multitask.florence_2.input import Florence2Input
+from gen_ai.multitask.florence_2.model_config import Florence2ModelConfig
+from gen_ai.multitask.florence_2.output_parsers import parse_output
+from gen_ai.multitask.florence_2.outputs import (
     OCR,
     BoundingBoxes,
     Caption,
@@ -185,9 +185,9 @@ class Florence2:
 
         self.model_config = model_config
 
-    def predict(
+    def __call__(
         self,
-        config: Florence2InputConfig,
+        config: Florence2Input,
     ) -> Union[
         Caption, BoundingBoxes, Polygons, OpenVocabularyDetection, OCR, QuadBoxes, None
     ]:
@@ -196,8 +196,8 @@ class Florence2:
 
         Parameters
         ----------
-        config : Florence2InputConfig
-            Florence2InputConfig object containing input configuration.
+        config : Florence2Input
+            Florence2Input object containing input configuration.
 
         Returns
         -------

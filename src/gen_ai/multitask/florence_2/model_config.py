@@ -3,13 +3,14 @@ from typing import Optional
 from warnings import warn
 
 import torch
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from gen_ai.base.model_config import ModelConfig
 from gen_ai.configs import florence_2_cfg
 from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
 
 
-class Florence2ModelConfig(BaseModel):
+class Florence2ModelConfig(ModelConfig):
     """
     Configuration class for Florence 2.
 
@@ -29,8 +30,6 @@ class Florence2ModelConfig(BaseModel):
         The type of task to perform. Defaults to
         Florence2TaskTypes.OPEN_VOCABULARY_DETECTION.
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     causal_lm_hf_model_id: Optional[str] = None
     processor_hf_model_id: Optional[str] = None

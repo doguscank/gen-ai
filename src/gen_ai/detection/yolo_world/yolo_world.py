@@ -1,17 +1,16 @@
 from pathlib import Path
 from typing import List, Optional
 
-from PIL import Image
 from ultralytics import YOLOWorld as YOLOWorldBase
 
-from gen_ai.detection.yolo_world.yolo_world_model_config import YOLOWorldModelConfig
-from gen_ai.detection.yolo_world.yolo_world_output_parsers import (
-    parse_yolo_world_output,
-)
-from gen_ai.detection.yolo_world.yolo_world_outputs import Detections
+from gen_ai.base.model import Model
+from gen_ai.detection.yolo_world.input import YOLOWorldInput
+from gen_ai.detection.yolo_world.model_config import YOLOWorldModelConfig
+from gen_ai.detection.yolo_world.output_parsers import parse_yolo_world_output
+from gen_ai.detection.yolo_world.outputs import Detections
 
 
-class YOLOWorld:
+class YOLOWorld(Model):
     """
     YOLOWorld object detection model interface.
     """
@@ -118,14 +117,14 @@ class YOLOWorld:
 
         self.config = config
 
-    def detect(self, image: Image.Image) -> Detections:
+    def __call__(self, input_data: YOLOWorldInput) -> Detections:
         """
-        Detect objects in image.
+        Detect objects on the given input.
 
         Parameters
         ----------
-        image : PIL.Image
-            Input image
+        input_data : YOLOWorldInput
+            YOLOWorld input data
 
         Returns
         -------
@@ -135,7 +134,7 @@ class YOLOWorld:
         if not self._check_model_ready():
             raise ValueError("Model not ready for inference")
 
-        results = self.model.predict(image)
+        results = self.model.predict(source=input_data.image)
         detections = parse_yolo_world_output(results, self.config.classes)
 
         return detections

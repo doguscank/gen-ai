@@ -2,10 +2,11 @@ from typing import Optional
 
 import numpy as np
 from PIL import Image
-from pydantic import BaseModel, ConfigDict
+
+from gen_ai.base.input import Input
 
 
-class SegmentAnything2InputConfig(BaseModel):
+class SegmentAnything2Input(Input):
     """
     Input class for Segment Anything 2.
 
@@ -30,8 +31,6 @@ class SegmentAnything2InputConfig(BaseModel):
     refine_mask : bool, optional
         Whether to refine the mask. Defaults to True.
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     image: Image.Image
     bounding_box: Optional[np.ndarray] = None

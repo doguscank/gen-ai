@@ -11,16 +11,13 @@ from diffusers import (
 from PIL import Image
 from transformers import CLIPTextModel, CLIPTokenizer
 
+from gen_ai.base.model import Model
 from gen_ai.configs import stable_diffusion_15 as sd_config
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.image_gen.clip.prompt_weighting import process_input_config
 from gen_ai.image_gen.lora.lora_manager import LoraManager, LoraModel
-from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
-    StableDiffusionInputConfig,
-)
-from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_model_config import (
-    StableDiffusionModelConfig,
-)
+from gen_ai.image_gen.stable_diffusion_15.input import StableDiffusionInput
+from gen_ai.image_gen.stable_diffusion_15.model_config import StableDiffusionModelConfig
 from gen_ai.image_gen.utils.inpainting_utils import (
     postprocess_outputs,
     preprocess_inputs,
@@ -49,7 +46,7 @@ _PipelineType = Union[
 ]
 
 
-class StableDiffusion:
+class StableDiffusion(Model):
     """
     The Stable Diffusion model for image generation.
     """
@@ -297,7 +294,7 @@ class StableDiffusion:
 
     @pathify_strings
     def _generate_images_text2img(
-        self, config: StableDiffusionInputConfig, output_dir: Optional[Path] = None
+        self, config: StableDiffusionInput, output_dir: Optional[Path] = None
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
@@ -347,7 +344,7 @@ class StableDiffusion:
 
     @pathify_strings
     def _generate_images_img2img(
-        self, config: StableDiffusionInputConfig, output_dir: Optional[Path] = None
+        self, config: StableDiffusionInput, output_dir: Optional[Path] = None
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
@@ -396,7 +393,7 @@ class StableDiffusion:
 
     @pathify_strings
     def _generate_images_inpainting(
-        self, config: StableDiffusionInputConfig, output_dir: Optional[Path] = None
+        self, config: StableDiffusionInput, output_dir: Optional[Path] = None
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
@@ -470,11 +467,12 @@ class StableDiffusion:
         return images
 
     @pathify_strings
-    def generate_images(
+    def __call__(
         self,
-        config: StableDiffusionInputConfig,
+        config: StableDiffusionInput,
         output_dir: Optional[Path] = None,
         use_prompt_weighting: bool = True,
+        **kwargs,
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
@@ -487,6 +485,8 @@ class StableDiffusion:
             The output directory to save the images, by default None.
         use_prompt_weighting : bool, optional
             Whether to use prompt weighting, by default True.
+        kwargs : Any
+            Additional keyword arguments.
 
         Returns
         -------

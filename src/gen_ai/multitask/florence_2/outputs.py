@@ -1,10 +1,11 @@
 from typing import Optional
 
 import numpy as np
-from pydantic import BaseModel
+
+from gen_ai.base.output import Output
 
 
-class Caption(BaseModel):
+class Caption(Output):
     """
     A caption for an image.
 
@@ -17,7 +18,7 @@ class Caption(BaseModel):
     caption: str
 
 
-class BoundingBox(BaseModel):
+class BoundingBox(Output):
     """
     A bounding box.
 
@@ -69,7 +70,7 @@ class BoundingBox(BaseModel):
         return self.coords.astype(int)
 
 
-class BoundingBoxes(BaseModel):
+class BoundingBoxes(Output):
     """
     Bounding boxes.
 
@@ -123,7 +124,7 @@ class BoundingBoxes(BaseModel):
         return [bbox.label for bbox in self.bboxes]
 
 
-class Point(BaseModel):
+class Point(Output):
     """
     A point.
 
@@ -165,7 +166,7 @@ class Point(BaseModel):
         return self.coords.astype(int)
 
 
-class Polygon(BaseModel):
+class Polygon(Output):
     """
     A polygon.
 
@@ -237,7 +238,7 @@ class Polygon(BaseModel):
         return self.coords_flatten.astype(int)
 
 
-class Polygons(BaseModel):
+class Polygons(Output):
     """
     Polygons.
 
@@ -319,7 +320,7 @@ class Polygons(BaseModel):
         return [polygon.label for polygon in self.polygons]
 
 
-class OCR(BaseModel):
+class OCR(Output):
     """
     OCR.
 
@@ -332,7 +333,7 @@ class OCR(BaseModel):
     text: str
 
 
-class QuadBox(BaseModel):
+class QuadBox(Output):
     """
     A quadrilateral bounding box.
 
@@ -398,7 +399,7 @@ class QuadBox(BaseModel):
         return self.coords.astype(int)
 
 
-class QuadBoxes(BaseModel):
+class QuadBoxes(Output):
     """
     Quadrilateral bounding boxes.
 
@@ -452,7 +453,7 @@ class QuadBoxes(BaseModel):
         return [quad_box.label for quad_box in self.quad_boxes]
 
 
-class OpenVocabularyDetection(BaseModel):
+class OpenVocabularyDetection(Output):
     """
     Open vocabulary detection.
 

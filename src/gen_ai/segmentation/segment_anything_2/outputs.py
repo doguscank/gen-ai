@@ -1,10 +1,12 @@
 from typing import Optional, Tuple
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
+
+from gen_ai.base.output import Output
 
 
-class Mask(BaseModel):
+class Mask(Output):
     """
     Output class for Segment Anything 2.
 
@@ -15,8 +17,6 @@ class Mask(BaseModel):
     shape : Optional[Tuple[int, ...]], optional
         The shape of the mask.
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     mask: np.ndarray
     shape: Optional[Tuple[int, ...]] = Field(None, init=False, repr=True)

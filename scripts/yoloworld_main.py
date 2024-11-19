@@ -14,6 +14,6 @@ if __name__ == "__main__":
 
     yolo_world_input = image
 
-    yolo_world_output: Detections = yolo_world_model.detect(yolo_world_input)
+    yolo_world_output: Detections = yolo_world_model(yolo_world_input)
 
     print(yolo_world_output)

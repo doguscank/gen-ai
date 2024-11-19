@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, ConfigDict
+from gen_ai.base.model_config import ModelConfig
 
 
-class YOLOWorldModelConfig(BaseModel):
+class YOLOWorldModelConfig(ModelConfig):
     """
     Configuration for YOLOWorld model.
 
@@ -19,8 +19,6 @@ class YOLOWorldModelConfig(BaseModel):
     classes : Union[str, List[str]]
         List of class names to detect.
     """
-
-    model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
 
     model_name: Optional[str] = None
     model_path: Optional[Path] = None
