@@ -21,6 +21,7 @@ if __name__ == "__main__":
         model_path=Path(
             "E:\\Scripting Workspace\\Python\\GenAI\\gen-ai\\models\\dreamshaper_8Inpainting.safetensors"
         ),
+        lora_dir=Path("E:\\Scripting Workspace\\Python\\GenAI\\gen-ai\\lora\\sd_15"),
         device="cuda",
         task_type=ImageGenTaskTypes.INPAINTING,
         seed=None,

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gen_ai"
-version = "0.3.0"
+version = "0.4.0"
 description = "Gen AI portfolio project"
 authors = ["Doğuş Can Korkmaz <k.doguscan@gmail.com>"]
 readme = "README.md"
@@ -23,6 +23,7 @@ transformers = "^4.46.1"
 accelerate = "^1.0.1"
 opencv-python = "^4.10.0.84"
 ultralytics = "^8.3.27"
+peft = "^0.13.2"
 
 [[tool.poetry.source]]
 name = "pytorch-cu124"

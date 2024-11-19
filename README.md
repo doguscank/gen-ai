@@ -105,6 +105,7 @@ parsed_prompt = parse_prompt(prompt)
     * Make prompt weighting more optimized
     * Add pre-defined embedding support (saving and loading embedding with unique names)
 * Add LoRA support
+    * ~~Implement LoRA model manager~~
     * Add changeable LoRA weights
 * Add ControlNet support
     * Add ControlNet weights

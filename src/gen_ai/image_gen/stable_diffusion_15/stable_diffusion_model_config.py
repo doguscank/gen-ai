@@ -27,6 +27,8 @@ class StableDiffusionModelConfig(BaseModel):
         The seed for random number generation. Defaults to -1.
     generator : torch.Generator, optional
         The generator for random number generation.
+    lora_dir : Path, optional
+        The directory containing the Lora models. Defaults to None.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True, protected_namespaces=())
@@ -40,6 +42,8 @@ class StableDiffusionModelConfig(BaseModel):
 
     seed: Optional[int] = -1
     generator: Optional[torch.Generator] = None
+
+    lora_dir: Optional[Path] = None
 
     def model_post_init(self, __context) -> "StableDiffusionModelConfig":
         if self.hf_model_id is None and self.model_path is None:

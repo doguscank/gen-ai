@@ -9,12 +9,12 @@ from diffusers import (
     StableDiffusionPipeline,
 )
 from PIL import Image
-from safetensors.torch import load_file as load_safetensor_file
 from transformers import CLIPTextModel, CLIPTokenizer
 
 from gen_ai.configs import stable_diffusion_15 as sd_config
 from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.image_gen.clip.prompt_weighting import process_input_config
+from gen_ai.image_gen.lora.lora_manager import LoraManager, LoraModel
 from gen_ai.image_gen.stable_diffusion_15.stable_diffusion_input_config import (
     StableDiffusionInputConfig,
 )
@@ -30,17 +30,23 @@ from gen_ai.logger import logger
 from gen_ai.utils import check_if_hf_cache_exists, pathify_strings
 from gen_ai.utils.file_ops import save_images
 
-PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
+_PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
     ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
     ImageGenTaskTypes.IMG2IMG: StableDiffusionImg2ImgPipeline,
     ImageGenTaskTypes.INPAINTING: StableDiffusionInpaintPipeline,
 }
 
-PIPELINE_MODEL_MAP: Dict[ImageGenTaskTypes, str] = {
+_PIPELINE_MODEL_MAP: Dict[ImageGenTaskTypes, str] = {
     ImageGenTaskTypes.TEXT2IMG: sd_config.TEXT2IMG_MODEL_ID,
     ImageGenTaskTypes.IMG2IMG: sd_config.IMG2IMG_MODEL_ID,
     ImageGenTaskTypes.INPAINTING: sd_config.INPAINTING_MODEL_ID,
 }
+
+_PipelineType = Union[
+    StableDiffusionPipeline,
+    StableDiffusionImg2ImgPipeline,
+    StableDiffusionInpaintPipeline,
+]
 
 
 class StableDiffusion:
@@ -62,23 +68,100 @@ class StableDiffusion:
             The configuration for the Stable Diffusion model, by default None
         """
 
-        self.pipe = None
-        self.model_config = config
+        self._pipe: Optional[_PipelineType] = None
+        self._model_config = config
+        self._lora_manager = LoraManager(
+            lora_dir=config.lora_dir,
+            auto_register=True,
+        )
 
-        if self.model_config is not None:
+        if self._model_config is not None:
             if (
-                self.model_config.hf_model_id is not None
-                or self.model_config.model_path is not None
+                self._model_config.hf_model_id is not None
+                or self._model_config.model_path is not None
             ):
                 logger.info(
-                    f"Loading Stable Diffusion model with config: {self.model_config}"
+                    f"Loading Stable Diffusion model with config: {self._model_config}"
                 )
 
                 self._load_pipeline(
-                    hf_model_id=self.model_config.hf_model_id,
-                    model_path=self.model_config.model_path,
-                    device=self.model_config.device,
+                    hf_model_id=self._model_config.hf_model_id,
+                    model_path=self._model_config.model_path,
+                    device=self._model_config.device,
                 )
+
+    @property
+    def tokenizer(self) -> CLIPTokenizer:
+        """
+        Get the tokenizer for the model.
+
+        Returns
+        -------
+        CLIPTokenizer
+            The tokenizer for the model.
+        """
+
+        self._check_model_ready()
+
+        return self._pipe.tokenizer
+
+    @property
+    def text_encoder(self) -> CLIPTextModel:
+        """
+        Get the text encoder for the model.
+
+        Returns
+        -------
+        CLIPTextModel
+            The text encoder for the model.
+        """
+
+        self._check_model_ready()
+
+        return self._pipe.text_encoder
+
+    @property
+    def device(self) -> str:
+        """
+        Get the device the model is running on.
+
+        Returns
+        -------
+        str
+            The device the model is running on.
+        """
+
+        self._check_model_ready()
+
+        return self._pipe.device
+
+    @property
+    def model_config(self) -> StableDiffusionModelConfig:
+        """
+        Get the model configuration.
+
+        Returns
+        -------
+        StableDiffusionModelConfig
+            The model configuration.
+        """
+
+        return self._model_config
+
+    @property
+    def pipe(
+        self,
+    ) -> Optional[_PipelineType]:
+        """
+        Get the pipeline.
+
+        Returns
+        -------
+        Optional[_PipelineType]
+            The pipeline.
+        """
+
+        return self._pipe
 
     def _check_model_ready(self) -> None:
         """
@@ -90,28 +173,8 @@ class StableDiffusion:
             If the model is not loaded.
         """
 
-        if self.pipe is None:
+        if self._pipe is None:
             raise ValueError("Model not loaded.")
-
-    def _load_finetuned_weights(self, model_path: Path) -> None:
-        """
-        Load the finetuned weights for the Stable Diffusion model.
-
-        Parameters
-        ----------
-        model_path : Path
-            The path to the finetuned weights.
-
-        Returns
-        -------
-        None
-        """
-
-        self._check_model_ready()
-
-        state_dict = load_safetensor_file(model_path)
-        self.pipe.unet.load_state_dict(state_dict)
-        self.pipe.to(self.model_config.device)
 
     def _load_pipeline(
         self,
@@ -148,13 +211,13 @@ class StableDiffusion:
         is_finetuned = False
 
         if hf_model_id is not None:
-            if self.model_config.hf_model_id == hf_model_id and self.pipe is not None:
+            if self._model_config.hf_model_id == hf_model_id and self._pipe is not None:
                 return
 
             model_descriptor = hf_model_id
 
         if model_path is not None:
-            if self.model_config.model_path == model_path and self.pipe is not None:
+            if self._model_config.model_path == model_path and self._pipe is not None:
                 return
 
             if "diffusers_cache" not in model_path.parts:
@@ -162,18 +225,18 @@ class StableDiffusion:
             model_descriptor = str(model_path)
 
         if device is None:
-            device = self.model_config.device
+            device = self._model_config.device
 
-        pipeline_cls = PIPELINE_CLS_MAP[self.model_config.task_type]
+        pipeline_cls = _PIPELINE_CLS_MAP[self._model_config.task_type]
 
         if is_finetuned:
-            self.pipe = pipeline_cls.from_single_file(
+            self._pipe = pipeline_cls.from_single_file(
                 model_descriptor,
                 cache_dir=sd_config.CACHE_DIR,
                 local_files_only=True,
             ).to(device)
         else:
-            self.pipe = pipeline_cls.from_pretrained(
+            self._pipe = pipeline_cls.from_pretrained(
                 model_descriptor,
                 torch_dtype=torch.float16,
                 cache_dir=sd_config.CACHE_DIR,
@@ -183,14 +246,14 @@ class StableDiffusion:
                 ),
             ).to(device)
 
-        if not self.model_config.check_nsfw:
-            self.pipe.safety_checker = None
+        if not self._model_config.check_nsfw:
+            self._pipe.safety_checker = None
 
-        # self.pipe.enable_freeu(s1=0.9, s2=0.2, b1=1.5, b2=1.6)
+        # self._pipe.enable_freeu(s1=0.9, s2=0.2, b1=1.5, b2=1.6)
 
-        self.model_config.hf_model_id = hf_model_id
-        self.model_config.model_path = model_path
-        self.model_config.device = device
+        self._model_config.hf_model_id = hf_model_id
+        self._model_config.model_path = model_path
+        self._model_config.device = device
 
     def update_pipeline(self, model_config: StableDiffusionModelConfig) -> None:
         """
@@ -212,7 +275,7 @@ class StableDiffusion:
             device=model_config.device,
         )
 
-        self.model_config = model_config
+        self._model_config = model_config
 
     def _load_model_hard_set(self) -> None:
         """
@@ -223,13 +286,13 @@ class StableDiffusion:
         None
         """
 
-        if self.model_config.hf_model_id is not None:
-            self._load_pipeline(hf_model_id=self.model_config.hf_model_id)
-        elif self.model_config.model_path is not None:
-            self._load_pipeline(model_path=self.model_config.model_path)
+        if self._model_config.hf_model_id is not None:
+            self._load_pipeline(hf_model_id=self._model_config.hf_model_id)
+        elif self._model_config.model_path is not None:
+            self._load_pipeline(model_path=self._model_config.model_path)
         else:
             self._load_pipeline(
-                hf_model_id=PIPELINE_MODEL_MAP[self.model_config.task_type],
+                hf_model_id=_PIPELINE_MODEL_MAP[self._model_config.task_type],
             )
 
     @pathify_strings
@@ -255,7 +318,7 @@ class StableDiffusion:
         images = []
 
         for _ in range(config.num_batches):
-            pipeline_images = self.pipe(
+            pipeline_images = self._pipe(
                 prompt=config.prompt,
                 negative_prompt=config.negative_prompt,
                 height=config.height,
@@ -266,7 +329,7 @@ class StableDiffusion:
                 sigmas=config.sigmas,
                 guidance_scale=config.guidance_scale,
                 eta=config.eta,
-                generator=self.model_config.generator,
+                generator=self._model_config.generator,
                 prompt_embeds=config.prompt_embeds,
                 negative_prompt_embeds=config.negative_prompt_embeds,
                 cross_attention_kwargs=config.cross_attention_kwargs,
@@ -305,7 +368,7 @@ class StableDiffusion:
         images = []
 
         for _ in range(config.num_batches):
-            pipeline_images = self.pipe(
+            pipeline_images = self._pipe(
                 prompt=config.prompt,
                 image=config.image,
                 strength=config.denoising_strength,
@@ -315,7 +378,7 @@ class StableDiffusion:
                 sigmas=config.sigmas,
                 guidance_scale=config.guidance_scale,
                 eta=config.eta,
-                generator=self.model_config.generator,
+                generator=self._model_config.generator,
                 prompt_embeds=config.prompt_embeds,
                 negative_prompt_embeds=config.negative_prompt_embeds,
                 cross_attention_kwargs=config.cross_attention_kwargs,
@@ -362,7 +425,7 @@ class StableDiffusion:
                 output_height=config.height,
             )
 
-            pipeline_images = self.pipe(
+            pipeline_images = self._pipe(
                 prompt=config.prompt,
                 image=image,
                 mask_image=mask_image,
@@ -378,7 +441,7 @@ class StableDiffusion:
                 sigmas=config.sigmas,
                 guidance_scale=config.guidance_scale,
                 eta=config.eta,
-                generator=self.model_config.generator,
+                generator=self._model_config.generator,
                 prompt_embeds=config.prompt_embeds,
                 negative_prompt_embeds=config.negative_prompt_embeds,
                 cross_attention_kwargs=config.cross_attention_kwargs,
@@ -433,6 +496,8 @@ class StableDiffusion:
 
         self._check_model_ready()
 
+        self._set_lora_adapters_from_prompt(config.prompt)
+
         # preprocess inputs if needed
         if use_prompt_weighting:
             config = process_input_config(
@@ -446,20 +511,20 @@ class StableDiffusion:
         output_dir.mkdir(parents=True, exist_ok=True)
 
         if config.scheduler_type is not None:
-            self.pipe.scheduler = get_scheduler(scheduler_type=config.scheduler_type)
+            self._pipe.scheduler = get_scheduler(scheduler_type=config.scheduler_type)
 
-        if self.model_config.task_type == ImageGenTaskTypes.TEXT2IMG:
+        if self._model_config.task_type == ImageGenTaskTypes.TEXT2IMG:
             images = self._generate_images_text2img(
                 config=config, output_dir=output_dir
             )
-        elif self.model_config.task_type == ImageGenTaskTypes.IMG2IMG:
+        elif self._model_config.task_type == ImageGenTaskTypes.IMG2IMG:
             images = self._generate_images_img2img(config=config, output_dir=output_dir)
-        elif self.model_config.task_type == ImageGenTaskTypes.INPAINTING:
+        elif self._model_config.task_type == ImageGenTaskTypes.INPAINTING:
             images = self._generate_images_inpainting(
                 config=config, output_dir=output_dir
             )
         else:
-            raise ValueError(f"Unsupported task type: {self.model_config.task_type}")
+            raise ValueError(f"Unsupported task type: {self._model_config.task_type}")
 
         return images
 
@@ -512,9 +577,9 @@ class StableDiffusion:
                 raise ValueError(
                     "file_path and token must be either both single values or both lists."
                 )
-            self.pipe.load_textual_inversion(file_path, token=token)
+            self._pipe.load_textual_inversion(file_path, token=token)
         elif hf_model_id is not None:
-            self.pipe.load_textual_inversion(
+            self._pipe.load_textual_inversion(
                 hf_model_id,
                 cache_dir=sd_config.CACHE_DIR,
                 only_local_files=check_if_hf_cache_exists(
@@ -540,7 +605,7 @@ class StableDiffusion:
 
         self._check_model_ready()
 
-        self.pipe.unload_textual_inversion(tokens=tokens)
+        self._pipe.unload_textual_inversion(tokens=tokens)
 
     def unload_all_textual_inversion(self) -> None:
         """
@@ -553,49 +618,160 @@ class StableDiffusion:
 
         self._check_model_ready()
 
-        self.pipe.unload_textual_inversion()
+        self._pipe.unload_textual_inversion()
 
-    @property
-    def tokenizer(self) -> CLIPTokenizer:
+    def add_lora(
+        self, lora_path: Path, trigger_words: Optional[Union[str, List[str]]] = None
+    ) -> None:
         """
-        Get the tokenizer for the model.
+        Add a LoRA model.
+
+        Parameters
+        ----------
+        lora_path : Path
+            The path to the LoRA model.
+        trigger_words : Optional[Union[str, List[str]]], optional
+            The trigger words for the LoRA model, by default None.
 
         Returns
         -------
-        CLIPTokenizer
-            The tokenizer for the model.
+        None
         """
 
-        self._check_model_ready()
+        self._lora_manager.register_lora_model(lora_path, trigger_words)
 
-        return self.pipe.tokenizer
-
-    @property
-    def text_encoder(self) -> CLIPTextModel:
+    def merge_lora_manager(
+        self, manager: Union["LoraManager", List["LoraManager"]]
+    ) -> None:
         """
-        Get the text encoder for the model.
+        Merge a LoRA manager.
+
+        Parameters
+        ----------
+        manager : Union["LoraManager", List["LoraManager"]]
+            The LoRA manager to merge.
 
         Returns
         -------
-        CLIPTextModel
-            The text encoder for the model.
+        None
         """
 
-        self._check_model_ready()
+        self._lora_manager.merge(manager)
 
-        return self.pipe.text_encoder
-
-    @property
-    def device(self) -> str:
+    def load_lora(
+        self,
+        lora: Union[
+            str, List[str], LoraModel, List[LoraModel], List[Union[str, LoraModel]]
+        ],
+    ) -> None:
         """
-        Get the device the model is running on.
+        Load a LoRA model.
+
+        Parameters
+        ----------
+        lora : Union[str, List[str], LoraModel, List[LoraModel]]
+            The LoRA model to load.
 
         Returns
         -------
-        str
-            The device the model is running on.
+        None
         """
 
-        self._check_model_ready()
+        if isinstance(lora, list):
+            if len(lora) == 0:
+                return
 
-        return self.pipe.device
+            if all(isinstance(model, (str, LoraModel)) for model in lora):
+                for model in lora:
+                    self.load_lora(model)
+                return
+
+        if isinstance(lora, str):
+            lora_model = self._lora_manager.get_model_by_name(lora)
+
+            if lora_model is None:
+                logger.warning(f"LoRA model with name {lora} not found.")
+                return
+
+            self.load_lora(lora_model)
+            return
+
+        if isinstance(lora, LoraModel):
+            if lora.is_loaded:
+                return
+
+            self._pipe.load_lora_weights(
+                lora.path,
+                weight_name=lora.path.name,
+                adapter_name=lora.name,
+            )
+            self._pipe.fuse_lora()
+            lora.set_loaded()
+            return
+
+        raise ValueError(f"Unsupported LoRA model type: {type(lora)}")
+
+    def unload_loras(self) -> None:
+        """
+        Unload all LoRA models.
+
+        Returns
+        -------
+        None
+        """
+
+        self._pipe.unfuse_lora()
+        self._pipe.unload_lora_weights()
+
+        for lora_model in self._lora_manager.models:
+            lora_model.set_unloaded()
+
+    def enable_lora(self) -> None:
+        """
+        Enable LoRA.
+
+        Returns
+        -------
+        None
+        """
+
+        self._pipe.enable_lora()
+
+    def disable_lora(self) -> None:
+        """
+        Disable LoRA.
+
+        Returns
+        -------
+        None
+        """
+
+        self._pipe.disable_lora()
+
+    def _set_lora_adapters_from_prompt(self, prompt: str) -> None:
+        """
+        Set the adapters from the prompt.
+
+        Parameters
+        ----------
+        prompt : str
+            The prompt to set the adapters from.
+
+        Returns
+        -------
+        None
+        """
+
+        lora_models_to_activate = self._lora_manager.get_lora_models_from_prompt(prompt)
+
+        self.unload_loras()
+
+        if len(lora_models_to_activate) == 0:
+            return
+
+        self.load_lora(lora=[model.name for model in lora_models_to_activate])
+
+        self._pipe.set_adapters(
+            adapter_names=[model.name for model in lora_models_to_activate],
+            adapter_weights=[model.scale for model in lora_models_to_activate],
+        )
