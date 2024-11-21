@@ -45,7 +45,7 @@ class SegmentAnything2(Model):
         else:
             logger.info("No SegmentAnything2 model configuration provided.")
 
-    def _check_model_ready(self) -> bool:
+    def check_model_ready(self) -> bool:
         """
         Check if the model is ready.
 
@@ -169,7 +169,7 @@ class SegmentAnything2(Model):
             The result mask.
         """
 
-        if not self._check_model_ready():
+        if not self.check_model_ready():
             raise ValueError("Model is not ready.")
 
         with torch.inference_mode(), torch.autocast(

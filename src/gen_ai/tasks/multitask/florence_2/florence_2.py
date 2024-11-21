@@ -50,7 +50,7 @@ class Florence2:
         else:
             logger.info("No Florence2 model configuration provided.")
 
-    def _check_model_ready(self) -> bool:
+    def check_model_ready(self) -> bool:
         """
         Check if the model is ready.
 
@@ -206,7 +206,7 @@ class Florence2:
             The output of the prediction.
         """
 
-        if not self._check_model_ready():
+        if not self.check_model_ready():
             raise ValueError("Model not loaded.")
 
         inputs = self.processor(

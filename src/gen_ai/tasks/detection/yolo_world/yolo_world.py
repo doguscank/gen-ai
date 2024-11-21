@@ -36,7 +36,7 @@ class YOLOWorld(Model):
                 class_names=self.config.classes,
             )
 
-    def _check_model_ready(self) -> bool:
+    def check_model_ready(self) -> bool:
         """
         Check if model is ready for inference.
 
@@ -131,7 +131,7 @@ class YOLOWorld(Model):
         Detections
             Detection results
         """
-        if not self._check_model_ready():
+        if not self.check_model_ready():
             raise ValueError("Model not ready for inference")
 
         results = self.model.predict(source=input_data.image)

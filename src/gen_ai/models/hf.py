@@ -1,5 +1,5 @@
-from gen_ai.models.base import BaseModel
+from gen_ai.models._base import ModelBase
 
 
-class HFModel(BaseModel):
+class HFModel(ModelBase):
     pass

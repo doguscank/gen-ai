@@ -26,7 +26,7 @@ class YOLOv11_Pose(Model):
         if self.config is not None:
             self.model = YOLO(config.model_path).to(config.device)
 
-    def _check_model_ready(self) -> bool:
+    def check_model_ready(self) -> bool:
         """
         Check if the model is ready for inference.
 
@@ -75,7 +75,7 @@ class YOLOv11_Pose(Model):
             List of Pose objects representing detected objects.
         """
 
-        if not self._check_model_ready():
+        if not self.check_model_ready():
             raise ValueError("Model is not ready for inference.")
 
         results = self.model.predict(image)

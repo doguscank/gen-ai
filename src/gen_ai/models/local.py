@@ -1,5 +1,5 @@
-from gen_ai.models.base import BaseModel
+from gen_ai.models._base import ModelBase
 
 
-class LocalModel(BaseModel):
+class LocalModel(ModelBase):
     pass
