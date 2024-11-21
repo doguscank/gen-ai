@@ -1,4 +1,4 @@
-from gen_ai.image_gen.lora.lora_manager import LoraManager
+from gen_ai.tasks.image_gen.lora.lora_manager import LoraManager
 
 if __name__ == "__main__":
     lora_manager = LoraManager(

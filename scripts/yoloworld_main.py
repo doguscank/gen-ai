@@ -1,4 +1,8 @@
-from gen_ai.detection.yolo_world import Detections, YOLOWorld, YOLOWorldModelConfig
+from gen_ai.tasks.detection.yolo_world import (
+    Detections,
+    YOLOWorld,
+    YOLOWorldModelConfig,
+)
 from gen_ai.utils.file_ops import load_image
 
 if __name__ == "__main__":

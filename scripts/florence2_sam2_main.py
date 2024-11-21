@@ -1,16 +1,16 @@
 from PIL import Image
 
-from gen_ai.configs import florence_2 as florence_cfg
-from gen_ai.configs import segment_anything_2 as sam2_cfg
-from gen_ai.constants.florence_2_task_types import Florence2TaskTypes
+from gen_ai.configs.defaults import florence_2 as florence_cfg
+from gen_ai.configs.defaults import segment_anything_2 as sam2_cfg
+from gen_ai.constants.task_types.florence_2_task_types import Florence2TaskTypes
 from gen_ai.logger import logger
-from gen_ai.multitask.florence_2 import (
+from gen_ai.tasks.multitask.florence_2 import (
     Florence2,
     Florence2Input,
     Florence2ModelConfig,
     OpenVocabularyDetection,
 )
-from gen_ai.segmentation.segment_anything_2 import (
+from gen_ai.tasks.segmentation.segment_anything_2 import (
     Mask,
     SegmentAnything2,
     SegmentAnything2Input,

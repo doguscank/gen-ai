@@ -1,15 +1,17 @@
 from pathlib import Path
 
 from gen_ai.constants.diffusion_noise_scheduler_types import SchedulerTypes
-from gen_ai.constants.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.constants.inpainting_configuration_types import (
     InpaintingBlendingTypes,
     InpaintingPostProcessTypes,
     InpaintingPreProcessTypes,
 )
-from gen_ai.image_gen.stable_diffusion_15.input import StableDiffusionInput
-from gen_ai.image_gen.stable_diffusion_15.model_config import StableDiffusionModelConfig
-from gen_ai.image_gen.stable_diffusion_15.stable_diffusion import StableDiffusion
+from gen_ai.constants.task_types.image_gen_task_types import ImageGenTaskTypes
+from gen_ai.tasks.image_gen.stable_diffusion_15.input import StableDiffusionInput
+from gen_ai.tasks.image_gen.stable_diffusion_15.model_config import (
+    StableDiffusionModelConfig,
+)
+from gen_ai.tasks.image_gen.stable_diffusion_15.stable_diffusion import StableDiffusion
 from gen_ai.utils import file_ops, img_utils, measure_time
 
 if __name__ == "__main__":

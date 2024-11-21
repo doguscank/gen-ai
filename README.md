@@ -60,7 +60,7 @@ Users can set weights of prompt parts using a syntax similar to AUTOMATIC1111's.
 ```python
 prompt = "An (oil painting:1.3) image depicting a (lake view at (sunset: 1.1): 1.3)"
 
-from gen_ai.image_gen.clip.prompt_weighting import parse_prompt
+from gen_ai.tasks.image_gen.clip.prompt_weighting import parse_prompt
 
 parsed_prompt = parse_prompt(prompt)
 
