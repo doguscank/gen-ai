@@ -12,7 +12,7 @@ from PIL import Image
 from transformers import CLIPTextModel, CLIPTokenizer
 
 from gen_ai.base.model import Model
-from gen_ai.configs.defaults import stable_diffusion_15 as sd_config
+from gen_ai.configs.defaults.image_gen import stable_diffusion_15 as sd_config
 from gen_ai.constants.task_types.image_gen_task_types import ImageGenTaskTypes
 from gen_ai.logger import logger
 from gen_ai.tasks.image_gen.clip.prompt_weighting import process_input_config
@@ -326,15 +326,15 @@ class StableDiffusion(Model):
 
     @pathify_strings
     def _generate_images_text2img(
-        self, config: StableDiffusionInput, output_dir: Optional[Path] = None
+        self, input: StableDiffusionInput, output_dir: Optional[Path] = None
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
 
         Parameters
         ----------
-        config : StableDiffusionConfig
-            Configuration for the Stable Diffusion model.
+        input : StableDiffusionInput
+            Stable Diffusion model input.
 
         Returns
         -------
@@ -346,25 +346,25 @@ class StableDiffusion(Model):
 
         images = []
 
-        for _ in range(config.num_batches):
+        for _ in range(input.num_batches):
             pipeline_images = self._pipeline(
-                prompt=config.prompt,
-                negative_prompt=config.negative_prompt,
-                height=config.height,
-                width=config.width,
-                num_images_per_prompt=config.num_images_per_prompt,
-                num_inference_steps=config.num_inference_steps,
-                timesteps=config.timesteps,
-                sigmas=config.sigmas,
-                guidance_scale=config.guidance_scale,
-                eta=config.eta,
+                prompt=input.prompt,
+                negative_prompt=input.negative_prompt,
+                height=input.height,
+                width=input.width,
+                num_images_per_prompt=input.num_images_per_prompt,
+                num_inference_steps=input.num_inference_steps,
+                timesteps=input.timesteps,
+                sigmas=input.sigmas,
+                guidance_scale=input.guidance_scale,
+                eta=input.eta,
                 generator=self._model_config.generator,
-                prompt_embeds=config.prompt_embeds,
-                negative_prompt_embeds=config.negative_prompt_embeds,
-                cross_attention_kwargs=config.cross_attention_kwargs,
-                guidance_rescale=config.guidance_rescale,
-                clip_skip=config.clip_skip,
-                callback_on_step_end=config.callback_on_step_end,
+                prompt_embeds=input.prompt_embeds,
+                negative_prompt_embeds=input.negative_prompt_embeds,
+                cross_attention_kwargs=input.cross_attention_kwargs,
+                guidance_rescale=input.guidance_rescale,
+                clip_skip=input.clip_skip,
+                callback_on_step_end=input.callback_on_step_end,
             ).images
 
             images.extend(pipeline_images)
@@ -376,15 +376,15 @@ class StableDiffusion(Model):
 
     @pathify_strings
     def _generate_images_img2img(
-        self, config: StableDiffusionInput, output_dir: Optional[Path] = None
+        self, input: StableDiffusionInput, output_dir: Optional[Path] = None
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
 
         Parameters
         ----------
-        config : StableDiffusionConfig
-            Configuration for the Stable Diffusion model.
+        input : StableDiffusionInput
+            Stable Diffusion model input.
 
         Returns
         -------
@@ -396,24 +396,24 @@ class StableDiffusion(Model):
 
         images = []
 
-        for _ in range(config.num_batches):
+        for _ in range(input.num_batches):
             pipeline_images = self._pipeline(
-                prompt=config.prompt,
-                image=config.image,
-                strength=config.denoising_strength,
-                num_images_per_prompt=config.num_images_per_prompt,
-                num_inference_steps=config.num_inference_steps,
-                timesteps=config.timesteps,
-                sigmas=config.sigmas,
-                guidance_scale=config.guidance_scale,
-                eta=config.eta,
+                prompt=input.prompt,
+                image=input.image,
+                strength=input.denoising_strength,
+                num_images_per_prompt=input.num_images_per_prompt,
+                num_inference_steps=input.num_inference_steps,
+                timesteps=input.timesteps,
+                sigmas=input.sigmas,
+                guidance_scale=input.guidance_scale,
+                eta=input.eta,
                 generator=self._model_config.generator,
-                prompt_embeds=config.prompt_embeds,
-                negative_prompt_embeds=config.negative_prompt_embeds,
-                cross_attention_kwargs=config.cross_attention_kwargs,
-                guidance_rescale=config.guidance_rescale,
-                clip_skip=config.clip_skip,
-                callback_on_step_end=config.callback_on_step_end,
+                prompt_embeds=input.prompt_embeds,
+                negative_prompt_embeds=input.negative_prompt_embeds,
+                cross_attention_kwargs=input.cross_attention_kwargs,
+                guidance_rescale=input.guidance_rescale,
+                clip_skip=input.clip_skip,
+                callback_on_step_end=input.callback_on_step_end,
             ).images
 
             images.extend(pipeline_images)
@@ -425,15 +425,15 @@ class StableDiffusion(Model):
 
     @pathify_strings
     def _generate_images_inpainting(
-        self, config: StableDiffusionInput, output_dir: Optional[Path] = None
+        self, input: StableDiffusionInput, output_dir: Optional[Path] = None
     ) -> List[Image.Image]:
         """
         Generate images using the Stable Diffusion model.
 
         Parameters
         ----------
-        config : StableDiffusionConfig
-            Configuration for the Stable Diffusion model.
+        input : StableDiffusionInput
+            Stable Diffusion model input.
 
         Returns
         -------
@@ -445,48 +445,48 @@ class StableDiffusion(Model):
 
         images = []
 
-        for _ in range(config.num_batches):
+        for _ in range(input.num_batches):
             image, mask_image = preprocess_inputs(
-                image=config.image,
-                mask=config.mask_image,
-                pre_process_type=config.preprocess_type,
-                output_width=config.width,
-                output_height=config.height,
+                image=input.image,
+                mask=input.mask_image,
+                pre_process_type=input.preprocess_type,
+                output_width=input.width,
+                output_height=input.height,
             )
 
             pipeline_images = self._pipeline(
-                prompt=config.prompt,
+                prompt=input.prompt,
                 image=image,
                 mask_image=mask_image,
-                masked_image_latents=config.masked_image_latents,
-                latents=config.latents,
-                height=config.height,
-                width=config.width,
-                padding_mask_crop=config.padding_mask_crop,
-                strength=config.denoising_strength,
-                num_images_per_prompt=config.num_images_per_prompt,
-                num_inference_steps=config.num_inference_steps,
-                timesteps=config.timesteps,
-                sigmas=config.sigmas,
-                guidance_scale=config.guidance_scale,
-                eta=config.eta,
+                masked_image_latents=input.masked_image_latents,
+                latents=input.latents,
+                height=input.height,
+                width=input.width,
+                padding_mask_crop=input.padding_mask_crop,
+                strength=input.denoising_strength,
+                num_images_per_prompt=input.num_images_per_prompt,
+                num_inference_steps=input.num_inference_steps,
+                timesteps=input.timesteps,
+                sigmas=input.sigmas,
+                guidance_scale=input.guidance_scale,
+                eta=input.eta,
                 generator=self._model_config.generator,
-                prompt_embeds=config.prompt_embeds,
-                negative_prompt_embeds=config.negative_prompt_embeds,
-                cross_attention_kwargs=config.cross_attention_kwargs,
-                guidance_rescale=config.guidance_rescale,
-                clip_skip=config.clip_skip,
-                callback_on_step_end=config.callback_on_step_end,
+                prompt_embeds=input.prompt_embeds,
+                negative_prompt_embeds=input.negative_prompt_embeds,
+                cross_attention_kwargs=input.cross_attention_kwargs,
+                guidance_rescale=input.guidance_rescale,
+                clip_skip=input.clip_skip,
+                callback_on_step_end=input.callback_on_step_end,
             ).images
 
             pipeline_images = [
                 postprocess_outputs(
-                    image=config.image,
-                    mask=config.mask_image,
+                    image=input.image,
+                    mask=input.mask_image,
                     inpainted_image=inpainted_image,
-                    pre_process_type=config.preprocess_type,
-                    post_process_type=config.postprocess_type,
-                    blending_type=config.blending_type,
+                    pre_process_type=input.preprocess_type,
+                    post_process_type=input.postprocess_type,
+                    blending_type=input.blending_type,
                 )
                 for inpainted_image in pipeline_images
             ]
@@ -501,7 +501,7 @@ class StableDiffusion(Model):
     @pathify_strings
     def __call__(
         self,
-        config: StableDiffusionInput,
+        input: StableDiffusionInput,
         output_dir: Optional[Path] = None,
         use_prompt_weighting: bool = True,
         **kwargs,
@@ -511,8 +511,8 @@ class StableDiffusion(Model):
 
         Parameters
         ----------
-        config : StableDiffusionConfig
-            Configuration for the Stable Diffusion model.
+        input : StableDiffusionInput
+            Stable Diffusion model input.
         output_dir : Optional[Path], optional
             The output directory to save the images, by default None.
         use_prompt_weighting : bool, optional
@@ -530,34 +530,33 @@ class StableDiffusion(Model):
             logger.error("Model not ready. Please load the model first.")
             return []
 
-        self._set_lora_adapters_from_prompt(config.prompt)
+        self._set_lora_adapters_from_prompt(input.prompt)
 
         # preprocess inputs if needed
         if use_prompt_weighting:
-            config = process_input_config(
-                input_config=config,
+            input = process_input_config(
+                input_config=input,
                 tokenizer=self.tokenizer,
                 model=self.text_encoder,
                 update_mean=True,
                 device=self.device,
             )
 
-        output_dir.mkdir(parents=True, exist_ok=True)
+        if output_dir is not None:
+            output_dir.mkdir(parents=True, exist_ok=True)
 
-        if config.scheduler_type is not None:
+        if input.scheduler_type is not None:
             self._pipeline.scheduler = get_scheduler(
-                scheduler_type=config.scheduler_type
+                scheduler_type=input.scheduler_type
             )
 
         if self._model_config.task_type == ImageGenTaskTypes.TEXT2IMG:
-            images = self._generate_images_text2img(
-                config=config, output_dir=output_dir
-            )
+            images = self._generate_images_text2img(input=input, output_dir=output_dir)
         elif self._model_config.task_type == ImageGenTaskTypes.IMG2IMG:
-            images = self._generate_images_img2img(config=config, output_dir=output_dir)
+            images = self._generate_images_img2img(input=input, output_dir=output_dir)
         elif self._model_config.task_type == ImageGenTaskTypes.INPAINTING:
             images = self._generate_images_inpainting(
-                config=config, output_dir=output_dir
+                input=input, output_dir=output_dir
             )
         else:
             raise ValueError(f"Unsupported task type: {self._model_config.task_type}")

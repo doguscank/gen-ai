@@ -1,7 +1,7 @@
 from PIL import Image
 
-from gen_ai.configs.defaults import florence_2 as florence_cfg
-from gen_ai.configs.defaults import segment_anything_2 as sam2_cfg
+from gen_ai.configs.defaults.multitask import florence_2 as florence_cfg
+from gen_ai.configs.defaults.segmentation import segment_anything_2 as sam2_cfg
 from gen_ai.constants.task_types.florence_2_task_types import Florence2TaskTypes
 from gen_ai.logger import logger
 from gen_ai.tasks.multitask.florence_2 import (
@@ -18,7 +18,7 @@ from gen_ai.tasks.segmentation.segment_anything_2 import (
 )
 from gen_ai.utils import measure_time
 from gen_ai.utils.file_ops import load_image
-from gen_ai.utils.torch_utils import free_gpu_cache
+from gen_ai.utils.torch_utils import flush
 
 if __name__ == "__main__":
     with measure_time("Florence2 Model Configuration"):
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     with measure_time("Florence2 Model Initialization"):
         florence2_model = Florence2(config=florence2_model_cfg)
 
-    image_path = "E:\\Scripting Workspace\\Python\\GenAI\\input1.jpg"
+    image_path = "/home/doguscank/python_self_work_ws/gen-ai/inputs/input2.jpg"
     image = load_image(image_path)
 
     with measure_time("Florence2 Input Configuration"):
@@ -50,7 +50,8 @@ if __name__ == "__main__":
     logger.info(f"Florence2 output: {florence2_output}")
 
     del florence2_model
-    free_gpu_cache()
+
+    flush()
 
     with measure_time("SegmentAnything2 Model Configuration"):
         sam2_model_cfg = SegmentAnything2ModelConfig(
@@ -76,4 +77,6 @@ if __name__ == "__main__":
     logger.info(f"SAM2 output: {sam2_output}")
 
     result_mask = Image.fromarray(sam2_output.mask)
-    result_mask.save("E:\\Scripting Workspace\\Python\\GenAI\\result_mask1.png")
+    result_mask.save(
+        "/home/doguscank/python_self_work_ws/gen-ai/outputs/result_mask2.png"
+    )

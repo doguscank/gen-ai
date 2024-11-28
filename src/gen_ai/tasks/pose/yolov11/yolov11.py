@@ -6,7 +6,7 @@ from ultralytics import YOLO
 from gen_ai.base.model import Model
 from gen_ai.tasks.pose.pose import Poses
 from gen_ai.tasks.pose.yolov11.model_config import YOLOv11ModelConfig
-from gen_ai.tasks.pose.yolov11.output_parsers import parse_yolov11_pose_output
+from gen_ai.tasks.pose.yolov11.output_parser import parse_yolov11_pose_output
 
 
 class YOLOv11_Pose(Model):

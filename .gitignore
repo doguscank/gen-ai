@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# VSCode settings
+.vscode/
+
 # C extensions
 *.so
 
@@ -21,6 +24,10 @@ embeddings/*
 !embeddings/README.md
 repositories/*
 !repositories/README.md
+inputs/*
+!inputs/.gitkeep
+outputs/*
+!outputs/.gitkeep
 
 # Distribution / packaging
 .Python

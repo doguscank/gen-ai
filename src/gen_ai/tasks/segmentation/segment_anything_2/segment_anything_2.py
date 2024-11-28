@@ -11,7 +11,7 @@ from gen_ai.tasks.segmentation.segment_anything_2.input import SegmentAnything2I
 from gen_ai.tasks.segmentation.segment_anything_2.model_config import (
     SegmentAnything2ModelConfig,
 )
-from gen_ai.tasks.segmentation.segment_anything_2.outputs import Mask
+from gen_ai.tasks.segmentation.segment_anything_2.output import Mask
 
 
 class SegmentAnything2(Model):

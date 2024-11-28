@@ -17,19 +17,18 @@ from gen_ai.utils import file_ops, img_utils, measure_time
 if __name__ == "__main__":
     sd_model_cfg = StableDiffusionModelConfig(
         model_path=Path(
-            "E:\\Scripting Workspace\\Python\\GenAI\\gen-ai\\models\\dreamshaper_8Inpainting.safetensors"
+            "/home/doguscank/python_self_work_ws/gen-ai/models/stable_diffusion_15/inpainting/dreamshaper_8Inpainting.safetensors"
         ),
-        lora_dir=Path("E:\\Scripting Workspace\\Python\\GenAI\\gen-ai\\lora\\sd_15"),
         device="cuda",
         task_type=ImageGenTaskTypes.INPAINTING,
         seed=None,
     )
 
-    image_path = "E:\\Scripting Workspace\\Python\\GenAI\\input1.jpg"
+    image_path = "/home/doguscank/python_self_work_ws/gen-ai/inputs/input1.jpeg"
 
     image = file_ops.load_image(image_path)
 
-    mask_path = "E:\\Scripting Workspace\\Python\\GenAI\\result_mask1.png"
+    mask_path = "/home/doguscank/python_self_work_ws/gen-ai/outputs/result_mask1.png"
 
     mask = file_ops.load_image(mask_path)
     mask = img_utils.preprocess_mask(mask)
@@ -47,8 +46,9 @@ if __name__ == "__main__":
         blending_type=InpaintingBlendingTypes.POISSON_BLENDING,
         denoising_strength=0.7,
         guidance_scale=7.5,
-        num_batches=4,
-        num_inference_steps=30,
+        num_batches=1,
+        num_images_per_prompt=2,
+        num_inference_steps=100,
         scheduler_type=SchedulerTypes.DPMPP_2M_KARRAS,
     )
 
@@ -58,5 +58,5 @@ if __name__ == "__main__":
     with measure_time("Stable Diffusion Prediction"):
         sd_output = sd_model(
             config=sd_input,
-            output_dir=Path("E:\\Scripting Workspace\\Python\\GenAI\\output"),
+            output_dir=Path("/home/doguscank/python_self_work_ws/gen-ai/outputs"),
         )

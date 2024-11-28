@@ -7,8 +7,7 @@ from gen_ai.configs.defaults import florence_2_cfg
 from gen_ai.logger import logger
 from gen_ai.tasks.multitask.florence_2.input import Florence2Input
 from gen_ai.tasks.multitask.florence_2.model_config import Florence2ModelConfig
-from gen_ai.tasks.multitask.florence_2.output_parsers import parse_output
-from gen_ai.tasks.multitask.florence_2.outputs import (
+from gen_ai.tasks.multitask.florence_2.output import (
     OCR,
     BoundingBoxes,
     Caption,
@@ -16,6 +15,7 @@ from gen_ai.tasks.multitask.florence_2.outputs import (
     Polygons,
     QuadBoxes,
 )
+from gen_ai.tasks.multitask.florence_2.output_parser import parse_output
 
 
 class Florence2:

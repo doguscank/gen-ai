@@ -6,7 +6,7 @@ FLORENCE2_CAUSAL_LM_MODEL_ID = "microsoft/Florence-2-large-ft"
 FLORENCE2_PROCESSOR_MODEL_ID = "microsoft/Florence-2-large-ft"
 DEFAULT_TASK = Florence2TaskTypes.OPEN_VOCABULARY_DETECTION
 CACHE_DIR = (
-    Path(__file__).parent.parent.parent.parent
+    Path(__file__).parent.parent.parent.parent.parent.parent
     / "models"
     / "diffusers_cache"
     / "florence2"

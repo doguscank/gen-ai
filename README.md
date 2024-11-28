@@ -16,6 +16,8 @@ The library incorporates the following advanced AI models:
   * A real-time object detection model with configurable object categories.
 * YOLOv11 Pose
   * A state-of-the-art human pose estimation model.
+* LLaMA-Mesh
+  * A 3D mesh generation model that creates OBJ files using a fine-tuned LLaMA 3.1 8B language model.
 
 ## Florence2
 
@@ -49,6 +51,10 @@ YOLOWorld implements real-time object detection with dynamic category support. T
 
 The YOLOv11 Pose integration enables precise human pose estimation, providing detailed skeletal keypoint detection and pose analysis.
 
+## LLaMA-Mesh
+
+LLaMA-Mesh is a model for generating 3D meshes in OBJ format using LLaMA language model. The model can create only one object at a time.
+
 # Features
 
 ## Stable Diffusion
@@ -78,8 +84,8 @@ parsed_prompt = parse_prompt(prompt)
 
 ## Stable Diffusion 1.5 Inpainting
 
-| Prompt | Input Image | Mask | Result |
-|--------|-------------|------|--------|
+| Prompt                                              | Input Image                                      | Mask                                           | Result                                             |
+| --------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- | -------------------------------------------------- |
 | RAW photo of a man wearing a red and white fur coat | ![Inpainting Input](assets/inpainting_input.jpg) | ![Inpainting Mask](assets/inpainting_mask.png) | ![Inpainting Output](assets/inpainting_output.png) |
 
 # Installation
@@ -87,6 +93,16 @@ parsed_prompt = parse_prompt(prompt)
 1. Install the package using `pip install -e .`
 2. Install additional required repositories from the `repositories` folder
 3. Refer to [RESOSITORIES.md](repositories/REPOSITORIES.md) for detailed setup instructions
+
+## Quantized LLM Requirements
+
+In order to run quantized LLMs, llama-cpp-python package is used. Command below can be used if you are using a CUDA machine. Please refer to llama-cpp-python[[GitHub](https://github.com/abetlen/llama-cpp-python)] package for other supported hardware accelerators.
+
+```bash
+CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
+```
+
+# To-Do
 
 * ~~Implement Stable Diffusion 1.5 pipeline~~
     * ~~Text2Img~~
@@ -140,6 +156,7 @@ parsed_prompt = parse_prompt(prompt)
 * Pixelization support [[GitHub](https://github.com/WuZongWei6/Pixelization)]
 * BrushNet support [[GitHub](https://github.com/TencentARC/BrushNet)] [[ComfyUI implementation](https://github.com/kijai/ComfyUI-BrushNet-Wrapper/tree/main)]
 * Add LLaMa-Mesh support [[GitHub](https://github.com/nv-tlabs/LLaMA-Mesh)]
+	* ~~Integrate model to the package.~~
     * Add image-to-text to create similar mesh (don't know how possible is it)
         * If successful, try to implement "room photo-to-text" pipeline and "text-to-room" pipeline
 * Add Lotus support [[GitHub](https://github.com/EnVision-Research/Lotus)] [[arXiv](https://arxiv.org/abs/2409.18124)]
@@ -150,3 +167,5 @@ parsed_prompt = parse_prompt(prompt)
 * Add AirLLM support to run bigger LLMs with less VRAM [[GitHub](https://github.com/lyogavin/airllm)]
 * Add One-DM (One-Shot Diffusion Mimicker for Handwritten Text Generation) support [[GitHub](https://github.com/dailenson/One-DM)]
 * Add RobustSAM for degredad image segmentation [[GitHub](https://github.com/robustsam/RobustSAM)]
+* https://differential-diffusion.github.io
+* https://github.com/sayakpaul/diffusers-torchao

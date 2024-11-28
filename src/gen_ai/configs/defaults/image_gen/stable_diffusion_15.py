@@ -6,7 +6,7 @@ TEXT2IMG_MODEL_ID = "sd-legacy/stable-diffusion-v1-5"
 IMG2IMG_MODEL_ID = "sd-legacy/stable-diffusion-v1-5"
 INPAINTING_MODEL_ID = "sd-legacy/stable-diffusion-inpainting"
 CACHE_DIR = (
-    Path(__file__).parent.parent.parent.parent
+    Path(__file__).parent.parent.parent.parent.parent.parent
     / "models"
     / "diffusers_cache"
     / "stable_diffusion"

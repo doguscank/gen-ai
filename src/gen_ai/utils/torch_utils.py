@@ -1,3 +1,4 @@
+import gc
 from typing import Optional
 
 import numpy as np
@@ -5,10 +6,12 @@ import torch
 from PIL import Image
 
 
-def free_gpu_cache() -> None:
-    """Free the GPU cache by emptying it."""
-
+def flush() -> None:
+    """Flush the GPU cache by emptying it and resetting the memory stats."""
+    gc.collect()
     torch.cuda.empty_cache()
+    torch.cuda.reset_max_memory_allocated()
+    torch.cuda.reset_peak_memory_stats()
 
 
 def pil_image_to_tensor(

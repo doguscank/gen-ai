@@ -6,8 +6,8 @@ from ultralytics import YOLOWorld as YOLOWorldBase
 from gen_ai.base.model import Model
 from gen_ai.tasks.detection.yolo_world.input import YOLOWorldInput
 from gen_ai.tasks.detection.yolo_world.model_config import YOLOWorldModelConfig
+from gen_ai.tasks.detection.yolo_world.output import Detections
 from gen_ai.tasks.detection.yolo_world.output_parsers import parse_yolo_world_output
-from gen_ai.tasks.detection.yolo_world.outputs import Detections
 
 
 class YOLOWorld(Model):

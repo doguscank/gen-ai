@@ -15,13 +15,16 @@ disable=
     too-many-positional-arguments,
     logging-fstring-interpolation,
     too-many-return-statements,
-    too-many-branches
+    too-many-branches,
+    too-many-lines,
+    redefined-builtin,
+    too-many-statements
 
 [FORMAT]
 max-line-length=88
 
 [TYPECHECK]
-generated-members=numpy.*,torch.*,cv2.*
+generated-members=numpy.*,torch.*,cv2.*, open3d.*
 
 [REPORTS]
 output-format=colorized

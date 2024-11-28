@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Optional, Union
 
-from gen_ai.configs.defaults import stable_diffusion_15 as sd_config
+from gen_ai.configs.defaults.image_gen import stable_diffusion_15 as sd_config
 from gen_ai.logger import logger
 from gen_ai.tasks.image_gen.textual_inversion._base import TextualInversionBase
 from gen_ai.utils import check_if_hf_cache_exists, pathify_strings

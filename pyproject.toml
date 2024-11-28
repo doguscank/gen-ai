@@ -22,7 +22,7 @@ xformers = { version = "*", source = "pytorch-cu124" }
 transformers = "^4.46.1"
 accelerate = "^1.0.1"
 opencv-python = "^4.10.0.84"
-ultralytics = "^8.3.27"
+ultralytics = "^8.3.27"                                   # for yolo-world and yolo-pose
 peft = "^0.13.2"
 
 [[tool.poetry.source]]
