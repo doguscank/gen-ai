@@ -24,11 +24,9 @@ class YOLOv11ModelConfig(ModelConfig):
     model_path: Optional[Path] = None
     device: str = "cuda"
 
-    def model_post_init(self, __context) -> "YOLOv11ModelConfig":
+    def model_post_init(self, __context) -> None:
         if self.model_name is None and self.model_path is None:
             warn(
                 "No model provided. Using the default model.\n"
                 f"Model name: {yolov11_cfg.DEFAULT_MODEL_NAME}"
             )
-
-        return self

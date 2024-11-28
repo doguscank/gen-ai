@@ -46,7 +46,5 @@ class LlamaMeshInput(Input):
     seed: Optional[int] = -1
     messages: Optional[List[str]] = Field(None, init=False, repr=False)
 
-    def model_post_init(self, __context) -> "LlamaMeshInput":
+    def model_post_init(self, __context) -> None:
         self.messages = [{"role": "user", "content": self.prompt}]
-
-        return self

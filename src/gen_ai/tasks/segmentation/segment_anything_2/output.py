@@ -32,8 +32,6 @@ class Mask(Output):
             self.bbox = (x1, y1, x2, y2)
         return self.bbox
 
-    def model_post_init(self, __context) -> "Mask":
+    def model_post_init(self, __context) -> None:
         self.mask = self.mask.astype(np.uint8)
         self.shape = self.mask.shape
-
-        return self

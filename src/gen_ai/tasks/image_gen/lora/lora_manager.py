@@ -15,10 +15,8 @@ class LoraModel(BaseModel):
     scale: float = Field(default=1.0, init=False, repr=True)
     is_loaded: bool = Field(default=False, init=False, repr=True)
 
-    def model_post_init(self, __context) -> "LoraModel":
+    def model_post_init(self, __context) -> None:
         self.name = self.path.stem
-
-        return self
 
     def set_scale(self, scale: float) -> None:
         self.scale = scale

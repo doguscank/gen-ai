@@ -18,6 +18,8 @@ The library incorporates the following advanced AI models:
   * A state-of-the-art human pose estimation model.
 * LLaMA-Mesh
   * A 3D mesh generation model that creates OBJ files using a fine-tuned LLaMA 3.1 8B language model.
+* Qwen-QwQ
+  * An experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities.
 
 ## Florence2
 
@@ -54,6 +56,8 @@ The YOLOv11 Pose integration enables precise human pose estimation, providing de
 ## LLaMA-Mesh
 
 LLaMA-Mesh is a model for generating 3D meshes in OBJ format using LLaMA language model. The model can create only one object at a time.
+
+## Qwen-QwQ
 
 # Features
 

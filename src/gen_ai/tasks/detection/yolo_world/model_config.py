@@ -25,7 +25,7 @@ class YOLOWorldModelConfig(ModelConfig):
     device: str = "cuda"
     classes: Union[str, List[str]]
 
-    def model_post_init(self, __context) -> "YOLOWorldModelConfig":
+    def model_post_init(self, __context) -> None:
         if isinstance(self.classes, str):
             if "," in self.classes:
                 self.classes = self.classes.split(",")
@@ -37,4 +37,3 @@ class YOLOWorldModelConfig(ModelConfig):
         if self.model_name is not None:
             if "." in self.model_name:  # remove file extension
                 self.model_name = self.model_name.split(".")[0]
-        return self

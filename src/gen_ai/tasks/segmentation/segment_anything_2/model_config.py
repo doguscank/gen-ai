@@ -29,7 +29,7 @@ class SegmentAnything2ModelConfig(ModelConfig):
 
     torch_dtype: Optional[torch.dtype] = Field(None, init=False)
 
-    def model_post_init(self, __context) -> "SegmentAnything2ModelConfig":
+    def model_post_init(self, __context) -> None:
         if self.hf_model_id is None and self.model_path is None:
             warn(
                 "No model provided. Using the default model "
@@ -40,5 +40,3 @@ class SegmentAnything2ModelConfig(ModelConfig):
         self.torch_dtype = (
             torch.bfloat16 if torch.cuda.is_available() else torch.float32
         )
-
-        return self

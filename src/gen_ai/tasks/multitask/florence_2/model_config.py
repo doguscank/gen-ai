@@ -40,7 +40,7 @@ class Florence2ModelConfig(ModelConfig):
 
     torch_dtype: Optional[torch.dtype] = Field(None, init=False)
 
-    def model_post_init(self, __context) -> "Florence2ModelConfig":
+    def model_post_init(self, __context) -> None:
         if self.causal_lm_hf_model_id is None and self.causal_lm_model_path is None:
             warn(
                 "No causal language model provided. Using the default model "
@@ -56,5 +56,3 @@ class Florence2ModelConfig(ModelConfig):
             self.processor_hf_model_id = florence_2_cfg.FLORENCE2_PROCESSOR_MODEL_ID
 
         self.task_type = torch.float16 if torch.cuda.is_available() else torch.float32
-
-        return self

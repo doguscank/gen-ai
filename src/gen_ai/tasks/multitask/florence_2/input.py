@@ -51,7 +51,7 @@ class Florence2Input(Input):
     early_stopping: bool = False
     do_sample: bool = False
 
-    def model_post_init(self, __context) -> "Florence2Input":
+    def model_post_init(self, __context) -> None:
         if self.task_prompt == Florence2TaskTypes.OPEN_VOCABULARY_DETECTION:
             if isinstance(self.text_prompt, list):
                 self.text_prompt = create_text_prompt(self.text_prompt)
@@ -74,5 +74,3 @@ class Florence2Input(Input):
                 "Given prompt is invalid for selected task.\n"
                 f"Prompt: {self.text_prompt}, Task: {self.task_prompt}"
             )
-
-        return self

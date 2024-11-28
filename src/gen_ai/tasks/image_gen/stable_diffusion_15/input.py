@@ -110,7 +110,7 @@ class StableDiffusionInput(Input):
     postprocess_type: Optional[InpaintingPostProcessTypes] = None
     blending_type: Optional[InpaintingBlendingTypes] = None
 
-    def model_post_init(self, __context) -> "StableDiffusionInput":
+    def model_post_init(self, __context) -> None:
         if isinstance(self.prompt, list) and isinstance(self.negative_prompt, list):
             if len(self.prompt) != len(self.negative_prompt):
                 raise ValueError(

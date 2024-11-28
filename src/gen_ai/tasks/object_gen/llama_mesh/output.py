@@ -13,18 +13,16 @@ class LlamaMeshOutput(Output):
 
     Attributes
     ----------
-    output: str
-        Output from the model
+    response: str
+        The response from the model
     obj_data: str
         Output from the model in OBJ format
     """
 
-    output: str
+    response: str
     obj_data: str = Field(None, init=False, repr=False)
 
-    def model_post_init(self, __context) -> "LlamaMeshOutput":
-        matches = re.findall(_RE_PATTERN, self.output, re.MULTILINE)
+    def model_post_init(self, __context) -> None:
+        matches = re.findall(_RE_PATTERN, self.response, re.MULTILINE)
 
         self.obj_data = "\n".join(matches)
-
-        return self

@@ -43,7 +43,7 @@ class StableDiffusionModelConfig(ModelConfig):
 
     lora_dir: Optional[Path] = None
 
-    def model_post_init(self, __context) -> "StableDiffusionModelConfig":
+    def model_post_init(self, __context) -> None:
         if self.hf_model_id is None and self.model_path is None:
             warn(
                 "No model provided. Using the default model.\n"
@@ -58,5 +58,3 @@ class StableDiffusionModelConfig(ModelConfig):
         if self.generator is None:
             self.generator = torch.Generator(device=self.device)
             self.generator.manual_seed(self.seed)
-
-        return self
