@@ -18,7 +18,8 @@ disable=
     too-many-branches,
     too-many-lines,
     redefined-builtin,
-    too-many-statements
+    too-many-statements,
+    fixme
 
 [FORMAT]
 max-line-length=88
