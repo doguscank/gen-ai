@@ -5,6 +5,9 @@ from gen_ai.constants.task_types.image_gen_task_types import ImageGenTaskTypes
 TEXT2IMG_MODEL_ID = "stabilityai/stable-diffusion-xl-base-1.0"
 IMG2IMG_MODEL_ID = "stabilityai/stable-diffusion-xl-base-1.0"
 INPAINTING_MODEL_ID = "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
+
+SDXL_VAE_FP16_FIX_MODEL_ID = "madebyollin/sdxl-vae-fp16-fix"
+
 CACHE_DIR = (
     Path(__file__).parent.parent.parent.parent.parent.parent
     / "models"

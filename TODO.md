@@ -22,7 +22,7 @@
 * Add ControlNet support
     * Add ControlNet weights
     * Add ControlNet start/end iteration controls
-* Add FreeU support [[HuggingFace](https://huggingface.co/docs/diffusers/main/en/using-diffusers/image_quality)] [[GitHub](https://github.com/ChenyangSi/FreeU)]
+* Add FreeU support [[🤗 HuggingFace](https://huggingface.co/docs/diffusers/main/en/using-diffusers/image_quality)] [[GitHub](https://github.com/ChenyangSi/FreeU)]
 * Add Groq API integration
 * Add LoRA usage prediction using LLMs
     * llama 3.2 1B/3B must be tried first since those models can also be run on local.
@@ -63,5 +63,8 @@
 * Add AirLLM support to run bigger LLMs with less VRAM [[GitHub](https://github.com/lyogavin/airllm)]
 * Add One-DM (One-Shot Diffusion Mimicker for Handwritten Text Generation) support [[GitHub](https://github.com/dailenson/One-DM)]
 * Add RobustSAM for degredad image segmentation [[GitHub](https://github.com/robustsam/RobustSAM)]
-* https://differential-diffusion.github.io
-* https://github.com/sayakpaul/diffusers-torchao
+* Add support for Differential Diffusion https://differential-diffusion.github.io
+* Add support for Torchao [[GitHub](https://github.com/sayakpaul/diffusers-torchao)]
+* Integrate ControlNet++ for SDXL [[🤗 HuggingFace](https://huggingface.co/xinsir/controlnet-union-sdxl-1.0)]
+* Implement task pipelines infrastructure
+* Add DWPose support

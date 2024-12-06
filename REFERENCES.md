@@ -11,6 +11,7 @@ Used sources or references are listed in this file.
 * YOLOv11-Pose [[Ultralytics](https://docs.ultralytics.com/models/yolo11/#key-features)] [[Ultralytics GitHub](https://github.com/ultralytics/ultralytics)]
 * LLaMA-Mesh [[arXiv](https://arxiv.org/pdf/2411.09595)] [[🤗 Huggingface](https://huggingface.co/Zhengyi/LLaMA-Mesh)]
 * Qwen-QwQ [[🤗 Huggingface](https://huggingface.co/Qwen/QwQ-32B-Preview)]
+* Stable Diffusion XL [[arXiv](https://arxiv.org/abs/2307.01952)] [[🤗 HuggingFace](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)]
 
 ## Repositories
 
@@ -21,3 +22,7 @@ Used sources or references are listed in this file.
 * llama-cpp [[GitHub](https://github.com/ggerganov/llama.cpp)]
 * llama-cpp-python [[GitHub](https://github.com/abetlen/llama-cpp-python)]
 * Open3D [[GitHub](https://github.com/isl-org/Open3D)]
+
+## HuggingFace Spaces
+
+* Diffusers Image Outpaint [[🤗 HuggingFace](https://huggingface.co/spaces/fffiloni/diffusers-image-outpaint)]

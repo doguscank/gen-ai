@@ -7,11 +7,11 @@ A comprehensive collection of state-of-the-art AI models integrated into a singl
 The library incorporates the following advanced AI models:
 
 * Florence2
-  * A versatile multimodal vision model supporting various computer vision tasks. Mainly used for zero-shot object detection.
+  * A versatile multimodal vision model supporting various computer vision tasks including captioning, zero-shot object detection, object grounding, and instance segmentation. Mainly used for zero-shot object detection.
 * Segment Anything 2
   * An advanced segmentation model that precisely identifies and delineates objects within images. Used with Florence2 for zero-shot object masking.
 * Stable Diffusion 1.5
-  * A generative AI model specializing in high-quality image synthesis and manipulation.
+  * A generative AI model specializing in medium-quality (512x512) image synthesis and manipulation.
 * YOLOWorld
   * A real-time object detection model with configurable object categories.
 * YOLOv11 Pose
@@ -20,6 +20,8 @@ The library incorporates the following advanced AI models:
   * A 3D mesh generation model that creates OBJ files using a fine-tuned LLaMA 3.1 8B language model.
 * Qwen-QwQ
   * An experimental research model developed by the Qwen Team, focused on advancing AI reasoning capabilities.
+* Stable Diffusion XL
+  * A generative AI model specializing in high-quality (1024x1024) image synthesis and manipulation.
 
 ## Florence2
 

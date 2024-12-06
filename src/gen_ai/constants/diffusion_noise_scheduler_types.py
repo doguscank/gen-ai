@@ -28,6 +28,7 @@ class SchedulerTypes(Enum):
     - LMS Karras: LMSDiscreteScheduler with use_karras_sigmas=True
     - DEIS: DEISMultistepScheduler
     - UniPC: UniPCMultistepScheduler
+    - TCD: TCDScheduler
     """
 
     DPMPP_2M = "DPM++ 2M"
@@ -51,3 +52,4 @@ class SchedulerTypes(Enum):
     LMS_KARRAS = "LMS Karras"
     DEIS = "DEIS"
     UNIPC = "UniPC"
+    TCD = "TCD"

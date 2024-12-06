@@ -1,24 +1,19 @@
 from typing import Dict
 
-from diffusers.schedulers.scheduling_deis_multistep import DEISMultistepScheduler
-from diffusers.schedulers.scheduling_dpmsolver_multistep import (
+from diffusers import (
+    DEISMultistepScheduler,
     DPMSolverMultistepScheduler,
-)
-from diffusers.schedulers.scheduling_dpmsolver_singlestep import (
     DPMSolverSinglestepScheduler,
-)
-from diffusers.schedulers.scheduling_euler_ancestral_discrete import (
     EulerAncestralDiscreteScheduler,
-)
-from diffusers.schedulers.scheduling_euler_discrete import EulerDiscreteScheduler
-from diffusers.schedulers.scheduling_heun_discrete import HeunDiscreteScheduler
-from diffusers.schedulers.scheduling_k_dpm_2_ancestral_discrete import (
+    EulerDiscreteScheduler,
+    HeunDiscreteScheduler,
     KDPM2AncestralDiscreteScheduler,
+    KDPM2DiscreteScheduler,
+    LMSDiscreteScheduler,
+    SchedulerMixin,
+    TCDScheduler,
+    UniPCMultistepScheduler,
 )
-from diffusers.schedulers.scheduling_k_dpm_2_discrete import KDPM2DiscreteScheduler
-from diffusers.schedulers.scheduling_lms_discrete import LMSDiscreteScheduler
-from diffusers.schedulers.scheduling_unipc_multistep import UniPCMultistepScheduler
-from diffusers.schedulers.scheduling_utils import SchedulerMixin
 
 from gen_ai.constants.diffusion_noise_scheduler_types import SchedulerTypes
 
@@ -40,6 +35,7 @@ SCHEDULER_TYPE_TO_CLASS: Dict[SchedulerTypes, SchedulerMixin] = {
     SchedulerTypes.LMS_KARRAS: LMSDiscreteScheduler,
     SchedulerTypes.DEIS: DEISMultistepScheduler,
     SchedulerTypes.UNIPC: UniPCMultistepScheduler,
+    SchedulerTypes.TCD: TCDScheduler,
 }
 
 SCHEDULER_TYPE_TO_ARGS: Dict[SchedulerTypes, Dict] = {

@@ -74,7 +74,7 @@ def _get_next_index(output_dir: Path, extension: str) -> int:
 @pathify_strings
 def save_images(
     images: Union[Image.Image, List[Image.Image]],
-    output_dir: str,
+    output_dir: Path,
     default_file_name: Optional[str] = "image",
     start_idx: Optional[int] = 0,
     extension: Optional[str] = "png",
@@ -87,7 +87,7 @@ def save_images(
     ----------
     images : Union[Image.Image, List[Image.Image]]
         A list of images to save.
-    output_dir : str
+    output_dir : Path
         The output directory to save the images.
     default_file_name : str, optional
         The default image name to use, by default "image"
@@ -109,12 +109,14 @@ def save_images(
     if auto_index:
         start_idx = _get_next_index(output_dir, extension=extension)
 
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     for idx, image in tqdm(
         enumerate(images), desc="Saving images", total=len(images), unit="image"
     ):
         img_name = _get_file_name(default_file_name, start_idx + idx)
 
-        image.save(f"{output_dir}/{img_name}.{extension}")
+        image.save(output_dir / f"{img_name}.{extension}")
 
 
 @pathify_strings

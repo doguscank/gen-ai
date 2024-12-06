@@ -16,7 +16,7 @@ from gen_ai.constants.inpainting_configuration_types import (
 
 class StableDiffusionInput(Input):
     """
-    Configuration class for Stable Diffusion.
+    Input class for Stable Diffusion.
 
     Parameters
     ----------

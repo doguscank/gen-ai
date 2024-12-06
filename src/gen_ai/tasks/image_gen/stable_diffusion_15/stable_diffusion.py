@@ -8,7 +8,6 @@ from diffusers import (
     StableDiffusionInpaintPipeline,
     StableDiffusionPipeline,
 )
-from PIL import Image
 from transformers import CLIPTextModel, CLIPTokenizer
 
 from gen_ai.base.model import Model
@@ -21,6 +20,7 @@ from gen_ai.tasks.image_gen.stable_diffusion_15.input import StableDiffusionInpu
 from gen_ai.tasks.image_gen.stable_diffusion_15.model_config import (
     StableDiffusionModelConfig,
 )
+from gen_ai.tasks.image_gen.stable_diffusion_15.output import StableDiffusionOutput
 from gen_ai.tasks.image_gen.textual_inversion.stable_diffusion_15 import (
     StableDiffusion15TextualInversion as TextualInversion,
 )
@@ -327,7 +327,7 @@ class StableDiffusion(Model):
     @pathify_strings
     def _generate_images_text2img(
         self, input: StableDiffusionInput, output_dir: Optional[Path] = None
-    ) -> List[Image.Image]:
+    ) -> StableDiffusionOutput:
         """
         Generate images using the Stable Diffusion model.
 
@@ -338,8 +338,8 @@ class StableDiffusion(Model):
 
         Returns
         -------
-        List[Image.Image]
-            A list of generated images.
+        StableDiffusionOutput
+            Inference output.
         """
 
         self._load_model_hard_set()
@@ -372,12 +372,12 @@ class StableDiffusion(Model):
         if output_dir:
             save_images(images=images, output_dir=output_dir, auto_index=True)
 
-        return images
+        return StableDiffusionOutput(images=images)
 
     @pathify_strings
     def _generate_images_img2img(
         self, input: StableDiffusionInput, output_dir: Optional[Path] = None
-    ) -> List[Image.Image]:
+    ) -> StableDiffusionOutput:
         """
         Generate images using the Stable Diffusion model.
 
@@ -388,8 +388,8 @@ class StableDiffusion(Model):
 
         Returns
         -------
-        List[Image.Image]
-            A list of generated images.
+        StableDiffusionOutput
+            Inference output.
         """
 
         self._load_model_hard_set()
@@ -421,12 +421,12 @@ class StableDiffusion(Model):
         if output_dir:
             save_images(images=images, output_dir=output_dir, auto_index=True)
 
-        return images
+        return StableDiffusionOutput(images=images)
 
     @pathify_strings
     def _generate_images_inpainting(
         self, input: StableDiffusionInput, output_dir: Optional[Path] = None
-    ) -> List[Image.Image]:
+    ) -> StableDiffusionOutput:
         """
         Generate images using the Stable Diffusion model.
 
@@ -437,8 +437,8 @@ class StableDiffusion(Model):
 
         Returns
         -------
-        List[Image.Image]
-            A list of generated images.
+        StableDiffusionOutput
+            Inference output.
         """
 
         self._load_model_hard_set()
@@ -496,7 +496,7 @@ class StableDiffusion(Model):
         if output_dir:
             save_images(images=images, output_dir=output_dir, auto_index=True)
 
-        return images
+        return StableDiffusionOutput(images=images)
 
     @pathify_strings
     def __call__(
@@ -505,7 +505,7 @@ class StableDiffusion(Model):
         output_dir: Optional[Path] = None,
         use_prompt_weighting: bool = True,
         **kwargs,
-    ) -> List[Image.Image]:
+    ) -> StableDiffusionOutput:
         """
         Generate images using the Stable Diffusion model.
 
@@ -522,8 +522,8 @@ class StableDiffusion(Model):
 
         Returns
         -------
-        List[Image.Image]
-            A list of generated images.
+        StableDiffusionOutput
+            Inference output.
         """
 
         if not self.check_model_ready():
@@ -561,7 +561,7 @@ class StableDiffusion(Model):
         else:
             raise ValueError(f"Unsupported task type: {self._model_config.task_type}")
 
-        return images
+        return StableDiffusionOutput(images=images)
 
     def add_lora(
         self, lora_path: Path, trigger_words: Optional[Union[str, List[str]]] = None
