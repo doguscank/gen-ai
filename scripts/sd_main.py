@@ -34,7 +34,7 @@ if __name__ == "__main__":
     mask = img_utils.preprocess_mask(mask)
     mask = img_utils.pad_mask(mask, padding=30, iterations=1)
 
-    sd_input = StableDiffusionInput.create_inpainting_config(
+    sd_input = StableDiffusionInput.create_inpainting_input(
         prompt="RAW photo of a man wearing a red and white fur coat",
         negative_prompt="bad quality, low quality",
         image=image,

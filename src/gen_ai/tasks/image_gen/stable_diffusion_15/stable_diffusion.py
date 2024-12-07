@@ -1,9 +1,8 @@
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import torch
 from diffusers import (
-    DiffusionPipeline,
     StableDiffusionImg2ImgPipeline,
     StableDiffusionInpaintPipeline,
     StableDiffusionPipeline,
@@ -31,18 +30,6 @@ from gen_ai.tasks.image_gen.utils.inpainting_utils import (
 from gen_ai.tasks.image_gen.utils.scheduler_utils import get_scheduler
 from gen_ai.utils import check_if_hf_cache_exists, pathify_strings
 from gen_ai.utils.file_ops import save_images
-
-_PIPELINE_CLS_MAP: Dict[ImageGenTaskTypes, DiffusionPipeline] = {
-    ImageGenTaskTypes.TEXT2IMG: StableDiffusionPipeline,
-    ImageGenTaskTypes.IMG2IMG: StableDiffusionImg2ImgPipeline,
-    ImageGenTaskTypes.INPAINTING: StableDiffusionInpaintPipeline,
-}
-
-_PIPELINE_MODEL_MAP: Dict[ImageGenTaskTypes, str] = {
-    ImageGenTaskTypes.TEXT2IMG: sd_config.TEXT2IMG_MODEL_ID,
-    ImageGenTaskTypes.IMG2IMG: sd_config.IMG2IMG_MODEL_ID,
-    ImageGenTaskTypes.INPAINTING: sd_config.INPAINTING_MODEL_ID,
-}
 
 _PipelineType = Union[
     StableDiffusionPipeline,
@@ -254,7 +241,7 @@ class StableDiffusion(Model):
         if device is None:
             device = self._model_config.device
 
-        pipeline_cls = _PIPELINE_CLS_MAP[self._model_config.task_type]
+        pipeline_cls = sd_config.PIPELINE_CLS_MAP[self._model_config.task_type]
 
         if is_finetuned:
             self._pipeline = pipeline_cls.from_single_file(
@@ -275,8 +262,6 @@ class StableDiffusion(Model):
 
         if not self._model_config.check_nsfw:
             self._pipeline.safety_checker = None
-
-        # self._pipeline.enable_freeu(s1=0.9, s2=0.2, b1=1.5, b2=1.6)
 
         self._model_config.hf_model_id = hf_model_id
         self._model_config.model_path = model_path
@@ -321,7 +306,7 @@ class StableDiffusion(Model):
             self._load_pipeline(model_path=self._model_config.model_path)
         else:
             self._load_pipeline(
-                hf_model_id=_PIPELINE_MODEL_MAP[self._model_config.task_type],
+                hf_model_id=sd_config.TASK_TYPE_MODEL_MAP[self._model_config.task_type],
             )
 
     @pathify_strings
@@ -335,11 +320,13 @@ class StableDiffusion(Model):
         ----------
         input : StableDiffusionInput
             Stable Diffusion model input.
+        output_dir : Path, optional
+            The output directory to save the images, by default None.
 
         Returns
         -------
         StableDiffusionOutput
-            Inference output.
+            Model output.
         """
 
         self._load_model_hard_set()

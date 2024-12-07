@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gen_ai"
-version = "0.5.0"
+version = "0.6.0"
 description = "Gen AI portfolio project"
 authors = ["Doğuş Can Korkmaz <k.doguscan@gmail.com>"]
 readme = "README.md"

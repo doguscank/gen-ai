@@ -12,7 +12,7 @@ class StableDiffusionOutput(Output):
     images: List[Image.Image] = Field(default_factory=list)
 
     @field_validator("images")
-    def handle_single_image(self, value):
+    def handle_single_image(cls, value):  # pylint: disable=no-self-argument
         if isinstance(value, Image.Image):
             return [value]
         return value

@@ -17,6 +17,8 @@ class StableDiffusionModelConfig(ModelConfig):
     ----------
     hf_model_id : str
         The identifier of the model to use.
+    model_path : Path, optional
+        The path to the model file. Defaults to None.
     device : str, optional
         The device to run the model on. Defaults to "cuda".
     task_type : ImageGenTaskTypes, optional

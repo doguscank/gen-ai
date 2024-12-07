@@ -12,6 +12,7 @@ from gen_ai.constants.inpainting_configuration_types import (
     InpaintingPostProcessTypes,
     InpaintingPreProcessTypes,
 )
+from gen_ai.utils.text_conditioning_utils import fix_conditioning_inputs
 
 
 class StableDiffusionInput(Input):
@@ -93,7 +94,7 @@ class StableDiffusionInput(Input):
     num_inference_steps: int = Field(default=20, ge=1)
     guidance_scale: float = Field(default=7.5, ge=0, le=30)
     denoising_strength: float = Field(
-        default=0.75, ge=0, le=1
+        default=0.75, ge=0.0, le=1.0
     )  # for img2img and inpainting
     scheduler_type: Optional[SchedulerTypes] = None
 
@@ -111,29 +112,34 @@ class StableDiffusionInput(Input):
     blending_type: Optional[InpaintingBlendingTypes] = None
 
     def model_post_init(self, __context) -> None:
-        if isinstance(self.prompt, list) and isinstance(self.negative_prompt, list):
-            if len(self.prompt) != len(self.negative_prompt):
-                raise ValueError(
-                    "Prompt and negative prompt lists must be of the same length."
-                )
-        if isinstance(self.prompt, str) and isinstance(self.negative_prompt, list):
-            self.negative_prompt = [self.negative_prompt] * len(self.prompt)
-        if isinstance(self.negative_prompt, str) and isinstance(self.prompt, list):
-            self.prompt = [self.prompt] * len(self.negative_prompt)
+        (
+            self.prompt,
+            self.negative_prompt,
+            self.prompt_embeds,
+            self.negative_prompt_embeds,
+        ) = fix_conditioning_inputs(
+            prompt=self.prompt,
+            negative_prompt=self.negative_prompt,
+            prompt_embeds=self.prompt_embeds,
+            negative_prompt_embeds=self.negative_prompt_embeds,
+        )
 
         if self.prompt is None and self.prompt_embeds is None:
             warnings.warn(
                 "Prompt is not provided."
                 "The model will generate images without any guidance."
             )
+            self.prompt = ""
+
         if self.negative_prompt is None and self.negative_prompt_embeds is None:
             warnings.warn(
                 "Negative prompt is not provided."
                 "The model will generate images without any negative guidance."
             )
+            self.negative_prompt = ""
 
     @classmethod
-    def create_text2img_config(
+    def create_text2img_input(
         cls,
         prompt: Optional[Union[str, List[str]]] = None,
         negative_prompt: Optional[Union[str, List[str]]] = None,
@@ -154,7 +160,7 @@ class StableDiffusionInput(Input):
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
     ) -> "StableDiffusionInput":
-        """This function creates a configuration for text2img tasks."""
+        """This function creates an input object for text2img task."""
         return cls(
             prompt=prompt,
             negative_prompt=negative_prompt,
@@ -177,7 +183,7 @@ class StableDiffusionInput(Input):
         )
 
     @classmethod
-    def create_inpainting_config(
+    def create_inpainting_input(
         cls,
         image: Image.Image,
         mask_image: Image.Image,
@@ -207,7 +213,7 @@ class StableDiffusionInput(Input):
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
     ) -> "StableDiffusionInput":
-        """This function creates a configuration for inpainting tasks."""
+        """This function creates an input object for inpainting task."""
         return cls(
             prompt=prompt,
             negative_prompt=negative_prompt,
@@ -239,7 +245,7 @@ class StableDiffusionInput(Input):
         )
 
     @classmethod
-    def create_img2img_config(
+    def create_img2img_input(
         cls,
         image: Image.Image,
         denoising_strength: float = 0.75,
@@ -260,7 +266,7 @@ class StableDiffusionInput(Input):
         clip_skip: Optional[int] = None,
         callback_on_step_end: Optional[Callable[[int, int, Dict], None]] = None,
     ) -> "StableDiffusionInput":
-        """This function creates a configuration for img2img tasks."""
+        """This function creates an input object for img2img task."""
         return cls(
             prompt=prompt,
             negative_prompt=negative_prompt,
