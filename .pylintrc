@@ -19,7 +19,8 @@ disable=
     too-many-lines,
     redefined-builtin,
     too-many-statements,
-    fixme
+    fixme,
+    duplicate-code,
 
 [FORMAT]
 max-line-length=88
