@@ -1,6 +1,6 @@
 from .florence_2 import Florence2  # noqa
 from .input import Florence2Input  # noqa
-from .input_controller import control_prompt  # noqa
+from .input_validator import validate_prompt  # noqa
 from .model_config import Florence2ModelConfig  # noqa
 from .output import (  # noqa
     OCR,

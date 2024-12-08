@@ -6,24 +6,27 @@ authors = ["Doğuş Can Korkmaz <k.doguscan@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 python-dotenv = "^1.0.1"
 pydantic = "^2.9.2"
-groq = "^0.11.0"
-faiss-cpu = "^1.9.0"
+groq = "^0.11.0"                                          # free llm api
+faiss-cpu = "^1.9.0"                                      # vector db
 numpy = "^2.1.2"
-flask = "^3.0.3"
+flask = "^3.0.3"                                          # web api support
 requests = "^2.32.3"
-diffusers = "^0.31.0"
+transformers = "^4.46.1"                                  # for using huggingface models
+diffusers = "^0.31.0"                                     # for using huggingface models
+modelscope = "^1.21.0"                                    # for using modelscope.cn models
 torch = { version = "*", source = "pytorch-cu124" }
 torchvision = { version = "*", source = "pytorch-cu124" }
 torchaudio = { version = "*", source = "pytorch-cu124" }
 xformers = { version = "*", source = "pytorch-cu124" }
-transformers = "^4.46.1"
 accelerate = "^1.0.1"
 opencv-python = "^4.10.0.84"
 ultralytics = "^8.3.27"                                   # for yolo-world and yolo-pose
-peft = "^0.13.2"
+peft = "^0.13.2"                                          # for using huggingface models
+einops = "^0.8.0"                                         # for florence-2
+timm = "^1.0.12"                                          # for florence-2
 
 [[tool.poetry.source]]
 name = "pytorch-cu124"

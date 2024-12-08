@@ -5,7 +5,7 @@ from pydantic import Field
 
 from gen_ai.base.input import Input
 from gen_ai.constants.task_types.florence_2_task_types import Florence2TaskTypes
-from gen_ai.tasks.multitask.florence_2.input_controller import control_prompt
+from gen_ai.tasks.multitask.florence_2.input_validator import validate_prompt
 from gen_ai.tasks.multitask.florence_2.utils import create_text_prompt
 
 TEXT_PROMPT_REQUIRED_TASK_TYPES = [
@@ -67,7 +67,7 @@ class Florence2Input(Input):
         else:
             self.prompt = self.task_prompt.value
 
-        if not control_prompt(
+        if not validate_prompt(
             text_prompt=self.text_prompt, task_prompt=self.task_prompt
         ):
             raise ValueError(

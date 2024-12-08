@@ -3,9 +3,9 @@ import re
 from gen_ai.constants.task_types.florence_2_task_types import Florence2TaskTypes
 
 
-def _control_location_prompt(text_prompt: str) -> bool:
+def _validate_location_prompt(text_prompt: str) -> bool:
     """
-    Control the location prompt.
+    Validate the location prompt.
 
     Parameters
     ----------
@@ -22,9 +22,9 @@ def _control_location_prompt(text_prompt: str) -> bool:
     return bool(re.search(pattern, text_prompt))
 
 
-def control_prompt(text_prompt: str, task_prompt: Florence2TaskTypes) -> bool:
+def validate_prompt(text_prompt: str, task_prompt: Florence2TaskTypes) -> bool:
     """
-    Control the prompt.
+    Validate the prompt.
 
     Parameters
     ----------
@@ -46,6 +46,6 @@ def control_prompt(text_prompt: str, task_prompt: Florence2TaskTypes) -> bool:
     ]
 
     if task_prompt in tasks_using_loc_prompts:
-        return _control_location_prompt(text_prompt)
+        return _validate_location_prompt(text_prompt)
 
     return True
